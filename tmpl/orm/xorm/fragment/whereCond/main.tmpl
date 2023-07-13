@@ -1,0 +1,143 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.WHERE_COND_PACKAGE_NAME}}
+
+import (
+	"xorm.io/builder"
+	"fmt"
+    {{.BASE_PACKAGE_IMPORT}}
+    {{.BASE_COND_PACKAGE_IMPORT}}
+
+	{{ range .tableImports }}
+	    {{- . -}}
+	{{ end }}
+)
+
+func {{.WHERE_COND_STRUCT_CONSTRUCTOR_NAME}}(op {{.BASE_PACKAGE_NAME}}.Op, _tableInfo *{{.BASE_PACKAGE_NAME}}.TableInfo) *{{.WHERE_COND_STRUCT_NAME}} {
+	return &{{.WHERE_COND_STRUCT_NAME}}{
+		_op:        op,
+		_tableInfo: _tableInfo,
+	}
+}
+
+func {{.WHERE_COND_INNER_STRUCT_CONSTRUCTOR_NAME}}(op {{.BASE_PACKAGE_NAME}}.Op, _tableInfo *{{.BASE_PACKAGE_NAME}}.TableInfo) *{{.WHERE_COND_INNER_STRUCT_NAME}} {
+	return &{{.WHERE_COND_INNER_STRUCT_NAME}}{
+		_op:        op,
+		_tableInfo: _tableInfo,
+	}
+}
+
+// region wrapper
+
+type {{.WHERE_COND_STRUCT_NAME}} struct {
+	_op        {{.BASE_PACKAGE_NAME}}.Op
+	_tableInfo *{{.BASE_PACKAGE_NAME}}.TableInfo
+	_conds     []{{.BASE_PACKAGE_NAME}}.IWhereCond
+}
+
+func (receiver *{{.WHERE_COND_STRUCT_NAME}}) And() *{{.WHERE_COND_INNER_STRUCT_NAME}} {
+	cond := {{.WHERE_COND_INNER_STRUCT_CONSTRUCTOR_NAME}}({{.BASE_PACKAGE_NAME}}.Op_AND, receiver._tableInfo)
+	receiver._conds = append(receiver._conds, cond)
+	return cond
+}
+
+func (receiver *{{.WHERE_COND_STRUCT_NAME}}) Or() *{{.WHERE_COND_INNER_STRUCT_NAME}} {
+	cond := {{.WHERE_COND_INNER_STRUCT_CONSTRUCTOR_NAME}}({{.BASE_PACKAGE_NAME}}.Op_OR, receiver._tableInfo)
+	receiver._conds = append(receiver._conds, cond)
+	return cond
+}
+
+// region 原生sql
+
+func (receiver *{{.WHERE_COND_STRUCT_NAME}}) AndRaw(sql string, args ...any) {
+	receiver._conds = append(receiver._conds, {{.BASE_COND_PACKAGE_NAME}}.NewRawWhereCondItem[any]({{.BASE_PACKAGE_NAME}}.Op_AND, sql, args...))
+}
+
+func (receiver *{{.WHERE_COND_STRUCT_NAME}}) OrRaw(sql string, args ...any) {
+	receiver._conds = append(receiver._conds, {{.BASE_COND_PACKAGE_NAME}}.NewRawWhereCondItem[any]({{.BASE_PACKAGE_NAME}}.Op_OR, sql, args...))
+}
+
+// endregion
+
+// region 嵌套
+
+func (receiver *{{.WHERE_COND_STRUCT_NAME}}) AndNest(fun func(cond *{{.WHERE_COND_STRUCT_NAME}})) {
+	cond := {{.WHERE_COND_STRUCT_CONSTRUCTOR_NAME}}({{.BASE_PACKAGE_NAME}}.Op_AND, receiver._tableInfo)
+	fun(cond)
+	receiver._conds = append(receiver._conds, cond)
+}
+func (receiver *{{.WHERE_COND_STRUCT_NAME}}) OrNest(fun func(cond *{{.WHERE_COND_STRUCT_NAME}})) {
+	cond := {{.WHERE_COND_STRUCT_CONSTRUCTOR_NAME}}({{.BASE_PACKAGE_NAME}}.Op_OR, receiver._tableInfo)
+	fun(cond)
+	receiver._conds = append(receiver._conds, cond)
+}
+
+// endregion
+
+func (receiver *{{.WHERE_COND_STRUCT_NAME}}) GetOp() {{.BASE_PACKAGE_NAME}}.Op {
+	return receiver._op
+}
+
+func (receiver *{{.WHERE_COND_STRUCT_NAME}}) GetWhereBuilder() builder.Cond {
+	cond := builder.NewCond()
+	for _, whereCond := range receiver._conds {
+		if whereCond.GetOp() == base.Op_OR {
+			cond = cond.Or(whereCond.GetWhereBuilder())
+		} else {
+			cond = cond.And(whereCond.GetWhereBuilder())
+		}
+	}
+	return cond
+}
+
+// endregion
+
+type {{.WHERE_COND_INNER_STRUCT_NAME}} struct {
+	_op             {{.BASE_PACKAGE_NAME}}.Op
+	_tableInfo      *{{.BASE_PACKAGE_NAME}}.TableInfo
+	_raw            *{{.BASE_COND_PACKAGE_NAME}}.RawWhereCondItem
+
+	{{ range .column }}
+	    {{- .FIELD_NAME}} *{{.BASE_COND_PACKAGE_NAME}}.WhereCondItem[{{.FIELD_TYPE}}] {{- if .COLUMN_COMMENT }} {{.COLUMN_COMMENT}} {{ end }}
+	{{ end }}
+}
+
+// region 数据库字段
+
+{{ range .column -}}
+    {{- template "columnTmpl" . }}
+{{- end }}
+
+// endregion
+
+func (receiver *{{.WHERE_COND_INNER_STRUCT_NAME}}) tableName() string {
+	tableName := ""
+	if receiver._tableInfo != nil && receiver._tableInfo.Alias != "" {
+		tableName = receiver._tableInfo.Alias
+		tableName = fmt.Sprintf("`%s`.", tableName)
+	}
+	return tableName
+}
+
+func (receiver *{{.WHERE_COND_INNER_STRUCT_NAME}}) GetOp() {{.BASE_PACKAGE_NAME}}.Op {
+	return receiver._op
+}
+
+
+func (receiver *{{.WHERE_COND_INNER_STRUCT_NAME}}) GetWhereBuilder() builder.Cond {
+	cond := builder.NewCond()
+
+	{{ range .column }}
+        {{- template "appendWhereCondToListTmpl" . -}}
+    {{ end }}
+
+	if receiver._raw != nil {
+		if receiver._raw.GetOp() == base.Op_OR {
+			cond = cond.Or(receiver._raw.GetWhereBuilder())
+		} else {
+			cond = cond.And(receiver._raw.GetWhereBuilder())
+		}
+	}
+
+	return cond
+}

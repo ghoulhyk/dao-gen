@@ -1,0 +1,22 @@
+{{ define "dataModelTmpl" }}
+// region inserterDataModel
+
+type {{.INSERTER_DATA_MODEL_STRUCT_NAME}} struct {
+	{{.MODEL_PACKAGE_NAME}}.{{.MODEL_BEAN_NAME}}
+	_insertColumns map[string]byte
+}
+
+func (receiver {{.INSERTER_DATA_MODEL_STRUCT_NAME}}) RealInsertData() any {
+	return &receiver.{{.MODEL_BEAN_NAME}}
+}
+
+func (receiver {{.INSERTER_DATA_MODEL_STRUCT_NAME}}) GetInsertCols() []string {
+	var result []string
+	for col := range receiver._insertColumns {
+		result = append(result, col)
+	}
+	return result
+}
+
+// endregion
+{{ end }}

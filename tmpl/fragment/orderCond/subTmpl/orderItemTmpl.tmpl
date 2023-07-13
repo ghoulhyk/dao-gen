@@ -1,0 +1,12 @@
+{{ define "orderItemTmpl" }}
+{{ if empty .COLUMN_COMMENT | not -}}
+    {{.COLUMN_COMMENT}}
+{{ else }}
+
+{{- end -}}
+func (receiver *{{.ORDER_COND_STRUCT_NAME}}) {{.FIELD_NAME_TITLED}}() *{{.BASE_COND_PACKAGE_NAME}}.OrderBuilder {
+	cond := {{.BASE_COND_PACKAGE_NAME}}.NewOrderBuilder("{{.COLUMN_NAME}}")
+	receiver.conds = append(receiver.conds, cond)
+	return cond
+}
+{{ end }}

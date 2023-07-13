@@ -1,0 +1,89 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.DELETER_PACKAGE_NAME}}
+
+import (
+	{{.BASE_PACKAGE_IMPORT}}
+	{{.WHERE_COND_PACKAGE_IMPORT}}
+	{{.ERRORS_PACKAGE_IMPORT}}
+	{{ if (empty .DATABASE_DEF_FIELD_NAME | not) }}
+	    {{.UTIL_PACKAGE_IMPORT}}
+        {{.DATABASE_DEF_PACKAGE_IMPORT}}
+	{{ end }}
+)
+
+// region deleterParams
+
+type {{.DELETER_PARAMS_STRUCT_NAME}} struct {
+	whereCondList []base.IWhereCond
+}
+
+func (receiver *{{.DELETER_PARAMS_STRUCT_NAME}}) TableInfo() {{.BASE_PACKAGE_NAME}}.TableInfo {
+	return {{.BASE_PACKAGE_NAME}}.TableInfo{
+		DatabaseInfo: {{ if empty .DATABASE_DEF_FIELD_NAME }}nil{{else}}{{.UTIL_PACKAGE_NAME}}.ToPtr({{.DATABASE_DEF_PACKAGE_NAME}}.{{.DATABASE_DEF_FIELD_NAME}}()){{ end }},
+		TableName:    "{{.TABLE_NAME}}",
+	}
+}
+
+func (receiver *{{.DELETER_PARAMS_STRUCT_NAME}}) GetWhereCondList() *[]{{.BASE_PACKAGE_NAME}}.IWhereCond {
+	return &receiver.whereCondList
+}
+
+// endregion
+
+type {{.DELETER_WRAPPER_STRUCT_NAME}} struct {
+	clientHolder {{.BASE_PACKAGE_NAME}}.IClientHolder
+	params       *{{.DELETER_PARAMS_STRUCT_NAME}}
+}
+
+func (receiver *{{.DELETER_WRAPPER_STRUCT_NAME}}) Init(client {{.BASE_PACKAGE_NAME}}.IClient) *{{.DELETER_WRAPPER_STRUCT_NAME}} {
+	clientHolder := &{{.BASE_PACKAGE_NAME}}.ClientHolder{}
+	clientHolder.Init(client)
+	receiver.clientHolder = clientHolder
+	receiver.params = &{{.DELETER_PARAMS_STRUCT_NAME}}{}
+	return receiver
+}
+
+func (receiver *{{.DELETER_WRAPPER_STRUCT_NAME}}) Where(fun func(cond *{{.WHERE_COND_PACKAGE_NAME}}.{{.STRUCT_NAME}})) *{{.DELETER_WRAPPER_STRUCT_NAME}} {
+	return receiver.AndWhere(fun)
+}
+
+func (receiver *{{.DELETER_WRAPPER_STRUCT_NAME}}) AndWhere(fun func(cond *{{.WHERE_COND_PACKAGE_NAME}}.{{.STRUCT_NAME}})) *{{.DELETER_WRAPPER_STRUCT_NAME}} {
+	cond := {{.WHERE_COND_PACKAGE_NAME}}.{{.WHERE_COND_STRUCT_CONSTRUCTOR_NAME}}({{.BASE_PACKAGE_NAME}}.Op_AND, {{.UTIL_PACKAGE_NAME}}.ToPtr(receiver.params.TableInfo()))
+	fun(cond)
+	receiver.params.whereCondList = append(receiver.params.whereCondList, cond)
+	return receiver
+}
+
+func (receiver *{{.DELETER_WRAPPER_STRUCT_NAME}}) OrWhere(fun func(cond *{{.WHERE_COND_PACKAGE_NAME}}.{{.STRUCT_NAME}})) *{{.DELETER_WRAPPER_STRUCT_NAME}} {
+	cond := {{.WHERE_COND_PACKAGE_NAME}}.{{.WHERE_COND_STRUCT_CONSTRUCTOR_NAME}}({{.BASE_PACKAGE_NAME}}.Op_OR, {{.UTIL_PACKAGE_NAME}}.ToPtr(receiver.params.TableInfo()))
+	fun(cond)
+	receiver.params.whereCondList = append(receiver.params.whereCondList, cond)
+	return receiver
+}
+
+func (receiver *{{.DELETER_WRAPPER_STRUCT_NAME}}) Delete() (deleteRows uint64, err error) {
+	return receiver.clientHolder.GetClient().Delete(receiver.params)
+}
+
+// 发生错误直接panic
+// 删除数量为0 不会 panic
+func (receiver *{{.DELETER_WRAPPER_STRUCT_NAME}}) MustDelete() (deleteRows uint64) {
+	deleteRows, err := receiver.Delete()
+	if err != nil {
+		if receiver.clientHolder.GetClient().IsInTransaction() {
+			receiver.clientHolder.GetClient().Rollback()
+		}
+		panic({{.ERRORS_PACKAGE_NAME}}.DeleteErr("{{.TABLE_NAME}}", err))
+	}
+	return
+}
+
+// Deprecated: 使用 MustDelete
+func (receiver *{{.DELETER_WRAPPER_STRUCT_NAME}}) DeleteOrPanic() (deleteRows uint64) {
+	return receiver.MustDelete()
+}
+
+{{ if .HAS_AUTOINCR_PK -}}
+    {{ template "byIdTmpl" . }}
+{{- end }}

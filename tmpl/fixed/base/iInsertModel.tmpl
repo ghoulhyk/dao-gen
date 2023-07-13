@@ -1,0 +1,20 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.BASE_PACKAGE_NAME}}
+
+type IInserter interface {
+	TableInfo() TableInfo
+	InsertData() IInserterDataModel
+	HasAutoincrPk() bool
+}
+
+type IBulkInserter interface {
+	TableInfo() TableInfo
+	InsertData() []IInserterDataModel
+	HasAutoincrPk() bool
+}
+
+type IInserterDataModel interface {
+	GetInsertCols() []string
+	RealInsertData() any
+}

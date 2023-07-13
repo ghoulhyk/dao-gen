@@ -1,0 +1,47 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.ERRORS_PACKAGE_NAME}}
+
+import "fmt"
+
+type DatabaseError struct {
+	TableName string
+	Operation string
+	Err       error
+}
+
+func InsertErr(tableName string, err error) DatabaseError {
+	return DatabaseError{
+		TableName: tableName,
+		Operation: "insert",
+		Err:       err,
+	}
+}
+
+func UpdateErr(tableName string, err error) DatabaseError {
+	return DatabaseError{
+		TableName: tableName,
+		Operation: "update",
+		Err:       err,
+	}
+}
+
+func DeleteErr(tableName string, err error) DatabaseError {
+	return DatabaseError{
+		TableName: tableName,
+		Operation: "delete",
+		Err:       err,
+	}
+}
+
+func SelectErr(tableName string, err error) DatabaseError {
+	return DatabaseError{
+		TableName: tableName,
+		Operation: "select",
+		Err:       err,
+	}
+}
+
+func (receiver DatabaseError) Error() string {
+	return fmt.Sprintf("%s %s 失败 (%s)", receiver.Operation, receiver.TableName, receiver.Err.Error())
+}

@@ -1,0 +1,57 @@
+{{ define "byIdTmpl" }}
+func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) SingleById(id {{.PK_FIELD_TYPE}}) (exist bool, model *{{.MODEL_PACKAGE_NAME}}.{{.STRUCT_NAME}}, err error) {
+	localVar := {{.SELECTOR_WRAPPER_STRUCT_NAME}}{}
+
+	localVar.Init(receiver.clientHolder.GetClient())
+	localVar.params.page = receiver.params.page
+	localVar.params.orderList = receiver.params.orderList
+	localVar.params.fieldList = receiver.params.fieldList
+
+	return localVar.AndWhere(func(cond *{{.WHERE_COND_PACKAGE_NAME}}.{{.STRUCT_NAME}}) {
+			cond.And().{{.PK_FIELD_NAME_TITLED}}().Equ(id)
+		}).Single()
+}
+
+// 发生错误直接panic
+// 未找到 不会 panic
+func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) MustSingleById(id {{.PK_FIELD_TYPE}}) *{{.MODEL_PACKAGE_NAME}}.{{.STRUCT_NAME}} {
+	_, result, err := receiver.SingleById(id)
+	if err != nil {
+		panic({{.ERRORS_PACKAGE_NAME}}.SelectErr("{{.TABLE_NAME}}", err))
+	}
+	return result
+}
+
+// Deprecated: 使用 MustSingleById
+func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) SingleByIdOrPanic(id {{.PK_FIELD_TYPE}}) *{{.MODEL_PACKAGE_NAME}}.{{.STRUCT_NAME}} {
+	return receiver.MustSingleById(id)
+}
+
+func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) ListByIds(ids ...{{.PK_FIELD_TYPE}}) (model []{{.MODEL_PACKAGE_NAME}}.{{.STRUCT_NAME}}, err error) {
+	localVar := {{.SELECTOR_WRAPPER_STRUCT_NAME}}{}
+
+	localVar.Init(receiver.clientHolder.GetClient())
+	localVar.params.page = receiver.params.page
+	localVar.params.orderList = receiver.params.orderList
+	localVar.params.fieldList = receiver.params.fieldList
+
+	return localVar.AndWhere(func(cond *{{.WHERE_COND_PACKAGE_NAME}}.{{.STRUCT_NAME}}) {
+			cond.And().{{.PK_FIELD_NAME_TITLED}}().In(ids...)
+		}).List()
+}
+
+// 发生错误直接panic
+// 长度为0 不会 panic
+func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) MustListByIds(ids ...{{.PK_FIELD_TYPE}}) []{{.MODEL_PACKAGE_NAME}}.{{.STRUCT_NAME}} {
+	result, err := receiver.ListByIds(ids...)
+	if err != nil {
+		panic({{.ERRORS_PACKAGE_NAME}}.SelectErr("{{.TABLE_NAME}}", err))
+	}
+	return result
+}
+
+// Deprecated: 使用 MustListByIds
+func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) ListByIdsOrPanic(ids ...{{.PK_FIELD_TYPE}}) []{{.MODEL_PACKAGE_NAME}}.{{.STRUCT_NAME}} {
+	return receiver.MustListByIds(ids...)
+}
+{{ end }}

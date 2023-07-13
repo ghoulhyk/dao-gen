@@ -1,0 +1,291 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.BASIC_PACKAGE_NAME}}
+
+import (
+	{{.BASE_PACKAGE_IMPORT}}
+	{{.ORM_SESSION_GETTER_IMPORT}}
+	"xorm.io/xorm"
+	"fmt"
+)
+
+type Client struct {
+	session            *xorm.Session
+	transactionHandler {{.BASE_PACKAGE_NAME}}.ITransactionHandler
+	baseSelectHandler  {{.BASE_PACKAGE_NAME}}.IBaseSelectHandler
+	insertHandler      {{.BASE_PACKAGE_NAME}}.IInsertHandler
+	deleteHandler      {{.BASE_PACKAGE_NAME}}.IDeleteHandler
+	updateHandler      {{.BASE_PACKAGE_NAME}}.IUpdateHandler
+	inserterGroup      *inserterGroup
+	bulkInserterGroup  *bulkInserterGroup
+	selectorGroup      *selectorGroup
+	// joinSelectorGroup  *joinSelectorGroup
+	deleterGroup       *deleterGroup
+	updaterGroup       *updaterGroup
+}
+
+// region {{.BASE_PACKAGE_NAME}}.ITransactionHandler
+
+func (c *Client) Insert(model {{.BASE_PACKAGE_NAME}}.IInserter) (insertCnt int64, pk interface{}, err error) {
+	return c.getInsertHandler().Insert(model)
+}
+
+func (c *Client) BulkInsert(model {{.BASE_PACKAGE_NAME}}.IBulkInserter) (insertCnt int64, pkList []interface{}, err error) {
+	return c.getInsertHandler().BulkInsert(model)
+}
+
+// endregion
+
+// region {{.BASE_PACKAGE_NAME}}.IBaseSelectHandler
+
+func (c *Client) Select(selector {{.BASE_PACKAGE_NAME}}.IBaseSelectorParams) (list interface{}, total uint64, err error) {
+	return c.getBaseSelectHandler().Select(selector)
+}
+
+func (c *Client) Single(selector {{.BASE_PACKAGE_NAME}}.IBaseSelectorParams) (exist bool, model interface{}, err error) {
+	return c.getBaseSelectHandler().Single(selector)
+}
+
+func (c *Client) Count(selector {{.BASE_PACKAGE_NAME}}.IBaseSelectorParams) (total uint64, err error) {
+	return c.getBaseSelectHandler().Count(selector)
+}
+
+// endregion
+
+// region {{.BASE_PACKAGE_NAME}}.IDeleteHandler
+
+func (c *Client) Delete(deleter {{.BASE_PACKAGE_NAME}}.IDeleterParams) (deleteRows uint64, err error) {
+	return c.getDeleteHandler().Delete(deleter)
+}
+
+// endregion
+
+// region {{.BASE_PACKAGE_NAME}}.IUpdateHandler
+
+func (c *Client) Update(updater {{.BASE_PACKAGE_NAME}}.IUpdaterParams) (updateRows uint64, err error) {
+	return c.getUpdateHandler().Update(updater)
+}
+
+// endregion
+
+// region {{.BASE_PACKAGE_NAME}}.ITransactionHandler
+
+func (c *Client) StartTransaction() error {
+	return c.getTransactionHandler().StartTransaction()
+}
+
+func (c *Client) Commit() error {
+	return c.getTransactionHandler().Commit()
+}
+
+// 发生错误直接panic
+func (c *Client) MustStartTransaction() {
+	err := c.getTransactionHandler().StartTransaction()
+	if err != nil {
+		panic(fmt.Sprintf("StartTransaction fail [%v]", err.Error()))
+	}
+}
+
+// Deprecated: 使用 MustStartTransaction
+func (c *Client) StartTransactionOrPanic() {
+	c.MustStartTransaction()
+}
+
+// 发生错误直接panic
+func (c *Client) MustCommit() {
+	err := c.getTransactionHandler().Commit()
+	if err != nil {
+		if c.IsInTransaction() {
+			c.Rollback()
+		}
+		panic(fmt.Sprintf("CommitTransaction fail [%v]", err.Error()))
+	}
+}
+
+// Deprecated: 使用 MustCommit
+func (c *Client) CommitOrPanic() {
+	c.MustCommit()
+}
+
+func (c *Client) Rollback() error {
+	return c.getTransactionHandler().Rollback()
+}
+
+func (c *Client) IsInTransaction() bool {
+	return c.getTransactionHandler().IsInTransaction()
+}
+
+// endregion
+
+func (c *Client) Inserter() *inserterGroup {
+	if c.inserterGroup == nil {
+		c.inserterGroup = &inserterGroup{client: c}
+	}
+	return c.inserterGroup
+}
+
+func (c *Client) BulkInserter() *bulkInserterGroup {
+	if c.bulkInserterGroup == nil {
+		c.bulkInserterGroup = &bulkInserterGroup{client: c}
+	}
+	return c.bulkInserterGroup
+}
+
+func (c *Client) Selector() *selectorGroup {
+	if c.selectorGroup == nil {
+		c.selectorGroup = &selectorGroup{client: c}
+	}
+	return c.selectorGroup
+}
+
+// func (c *Client) JoinSelector() *joinSelectorGroup {
+// 	if c.joinSelectorGroup == nil {
+// 		c.joinSelectorGroup = &joinSelectorGroup{client: c}
+// 	}
+// 	return c.joinSelectorGroup
+// }
+
+func (c *Client) Deleter() *deleterGroup {
+	if c.deleterGroup == nil {
+		c.deleterGroup = &deleterGroup{client: c}
+	}
+	return c.deleterGroup
+}
+
+func (c *Client) Updater() *updaterGroup {
+	if c.updaterGroup == nil {
+		c.updaterGroup = &updaterGroup{client: c}
+	}
+	return c.updaterGroup
+}
+
+// region 内部对象生成
+
+func (c *Client) getTransactionHandler() {{.BASE_PACKAGE_NAME}}.ITransactionHandler {
+	if c.transactionHandler == nil {
+		c.transactionHandler = &transactionHandler{session: c.session}
+	}
+	return c.transactionHandler
+}
+
+func (c *Client) getInsertHandler() {{.BASE_PACKAGE_NAME}}.IInsertHandler {
+	if c.insertHandler == nil {
+		c.insertHandler = &insertHandler{c: c}
+	}
+	return c.insertHandler
+}
+
+func (c *Client) getBaseSelectHandler() {{.BASE_PACKAGE_NAME}}.IBaseSelectHandler {
+	if c.baseSelectHandler == nil {
+		c.baseSelectHandler = &baseSelectHandler{
+			c:                 c,
+			selectHandler:     selectHandler{c: c},
+			joinSelectHandler: joinSelectHandler{c: c},
+		}
+	}
+	return c.baseSelectHandler
+}
+
+func (c *Client) getDeleteHandler() {{.BASE_PACKAGE_NAME}}.IDeleteHandler {
+	if c.deleteHandler == nil {
+		c.deleteHandler = &deleteHandler{c: c}
+	}
+	return c.deleteHandler
+}
+
+func (c *Client) getUpdateHandler() {{.BASE_PACKAGE_NAME}}.IUpdateHandler {
+	if c.updateHandler == nil {
+		c.updateHandler = &updateHandler{c: c}
+	}
+	return c.updateHandler
+}
+
+// endregion
+
+func (c *Client) Release() error {
+	c.session.Close()
+	return nil
+}
+
+func (c *Client) TransactionFunc(fn func(client *Client) error) error {
+	c.StartTransaction()
+	defer func() {
+		if r := recover(); r != nil {
+			c.TryRollbackAndRelease()
+			panic(r)
+		}
+		c.Release()
+	}()
+	err := fn(c)
+	if err != nil {
+		c.Rollback()
+		return err
+	}
+	err = c.Commit()
+	return err
+}
+
+func (c *Client) TryRollbackAndRelease() error {
+	var err error
+	if c.IsInTransaction() {
+		err = c.getTransactionHandler().Rollback()
+	}
+	c.Release()
+	return err
+}
+
+func (c *Client) GetSession() *xorm.Session {
+	return c.session
+}
+
+func NewClient() *Client {
+	return NewClientWithSession({{.ORM_SESSION_GETTER_FUNC}})
+}
+
+func TransactionFunc(fn func(client *Client) error) error {
+	return NewClient().TransactionFunc(fn)
+}
+
+func TransactionFunc1[A any](fn func(client *Client) (A, error)) (A, error) {
+	c := NewClient()
+	c.StartTransaction()
+	defer func() {
+		if r := recover(); r != nil {
+			c.TryRollbackAndRelease()
+			panic(r)
+		}
+		c.Release()
+	}()
+	a, err := fn(c)
+	if err != nil {
+		c.Rollback()
+		return a, err
+	}
+	err = c.Commit()
+	return a, err
+}
+
+func TransactionFunc2[A any, B any](fn func(client *Client) (A, B, error)) (A, B, error) {
+	c := NewClient()
+	c.StartTransaction()
+	defer func() {
+		if r := recover(); r != nil {
+			c.TryRollbackAndRelease()
+			panic(r)
+		}
+		c.Release()
+	}()
+	a, b, err := fn(c)
+	if err != nil {
+		c.Rollback()
+		return a, b, err
+	}
+	err = c.Commit()
+	return a, b, err
+}
+
+func NewClientWithSession(session *xorm.Session) *Client {
+	return &Client{
+		session: session,
+	}
+}

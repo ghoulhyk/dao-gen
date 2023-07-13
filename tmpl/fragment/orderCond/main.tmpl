@@ -1,0 +1,27 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.ORDER_COND_PACKAGE_NAME}}
+
+import (
+	{{.BASE_PACKAGE_IMPORT}}
+	{{.BASE_COND_PACKAGE_IMPORT}}
+)
+
+type {{.ORDER_COND_STRUCT_NAME}} struct{ conds []base.IOrder }
+
+// region basicOrder
+{{ range .column -}}
+    {{ template "orderItemTmpl" . }}
+{{- end }}
+// endregion
+
+
+func (receiver *{{.ORDER_COND_STRUCT_NAME}}) GetOrderCondList() []{{.BASE_PACKAGE_NAME}}.IOrder {
+	return receiver.conds
+}
+
+func (receiver *{{.ORDER_COND_STRUCT_NAME}}) RAW(sql string) {{.BASE_PACKAGE_NAME}}.IOrder {
+	cond := {{.BASE_COND_PACKAGE_NAME}}.OrderRaw(sql)
+	receiver.conds = append(receiver.conds, cond)
+	return cond
+}

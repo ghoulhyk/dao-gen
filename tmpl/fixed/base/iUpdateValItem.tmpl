@@ -1,0 +1,10 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.BASE_PACKAGE_NAME}}
+
+type IUpdateValItem interface {
+	ColumnName() string
+	GetVal() interface{}
+	GetRawSql() string
+	IsRawSql() bool
+}

@@ -1,0 +1,44 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.BASE_COND_PACKAGE_NAME}}
+
+import "ybcdn.cn/pkg/response"
+
+type Page struct {
+	noLimit bool
+
+	page     int
+	pageSize int
+}
+
+// PageCdtLimited
+// page从 0 开始
+func PageCdtLimited(page int, pageSize int) *Page {
+	return &Page{
+		noLimit:  false,
+		page:     page,
+		pageSize: pageSize,
+	}
+}
+
+func PageCdtNoLimit() *Page {
+	return &Page{
+		noLimit: true,
+	}
+}
+
+func PageCdtFromReq(query response.PageQuery) *Page {
+	return PageCdtLimited(query.GetPage()-1, query.GetPageSize())
+}
+
+func (receiver Page) HasLimit() bool {
+	return !receiver.noLimit
+}
+
+func (receiver Page) PageSize() int {
+	return receiver.pageSize
+}
+
+func (receiver Page) Offset() int {
+	return receiver.page * receiver.pageSize
+}

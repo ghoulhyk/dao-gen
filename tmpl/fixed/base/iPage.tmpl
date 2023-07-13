@@ -1,0 +1,9 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.BASE_PACKAGE_NAME}}
+
+type IPage interface {
+	HasLimit() bool
+	PageSize() int
+	Offset() int
+}

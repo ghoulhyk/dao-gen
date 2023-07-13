@@ -1,0 +1,59 @@
+{{ define "byIdTmpl" }}
+func (receiver *{{.DELETER_WRAPPER_STRUCT_NAME}}) DeleteById(id {{.PK_FIELD_TYPE}}) (deleted bool, err error) {
+	localVar := {{.DELETER_WRAPPER_STRUCT_NAME}}{}
+
+	localVar.Init(receiver.clientHolder.GetClient())
+
+	rows, err := localVar.AndWhere(func(cond *{{.WHERE_COND_PACKAGE_NAME}}.{{.STRUCT_NAME}}) {
+			cond.And().{{.PK_FIELD_NAME_TITLED}}().Equ(id)
+		}).Delete()
+	if err != nil {
+		return
+	}
+	return rows == 1, nil
+}
+
+// 发生错误直接panic
+// 删除数量为0 不会 panic
+func (receiver *{{.DELETER_WRAPPER_STRUCT_NAME}}) MustDeleteById(id {{.PK_FIELD_TYPE}}) (deleted bool) {
+	result, err := receiver.DeleteById(id)
+	if err != nil {
+		panic({{.ERRORS_PACKAGE_NAME}}.DeleteErr("{{.TABLE_NAME}}", err))
+	}
+	return result
+}
+
+// Deprecated: 使用 MustDeleteById
+func (receiver *{{.DELETER_WRAPPER_STRUCT_NAME}}) DeleteByIdOrPanic(id {{.PK_FIELD_TYPE}}) (deleted bool) {
+	return receiver.MustDeleteById(id)
+}
+
+func (receiver *{{.DELETER_WRAPPER_STRUCT_NAME}}) DeleteByIds(ids ...{{.PK_FIELD_TYPE}}) (deleteRows uint64, err error) {
+	localVar := {{.DELETER_WRAPPER_STRUCT_NAME}}{}
+
+	localVar.Init(receiver.clientHolder.GetClient())
+
+	rows, err := localVar.AndWhere(func(cond *{{.WHERE_COND_PACKAGE_NAME}}.{{.STRUCT_NAME}}) {
+			cond.And().{{.PK_FIELD_NAME_TITLED}}().In(ids...)
+		}).Delete()
+	if err != nil {
+		return
+	}
+	return rows, nil
+}
+
+// 发生错误直接panic
+// 删除数量为0 不会 panic
+func (receiver *{{.DELETER_WRAPPER_STRUCT_NAME}}) MustDeleteByIds(ids ...{{.PK_FIELD_TYPE}}) (deleteRows uint64) {
+	result, err := receiver.DeleteByIds(ids...)
+	if err != nil {
+		panic({{.ERRORS_PACKAGE_NAME}}.DeleteErr("{{.TABLE_NAME}}", err))
+	}
+	return result
+}
+
+// Deprecated: 使用 MustDeleteByIds
+func (receiver *{{.DELETER_WRAPPER_STRUCT_NAME}}) DeleteByIdsOrPanic(ids ...{{.PK_FIELD_TYPE}}) (deleteRows uint64) {
+	return receiver.MustDeleteByIds(ids...)
+}
+{{ end }}

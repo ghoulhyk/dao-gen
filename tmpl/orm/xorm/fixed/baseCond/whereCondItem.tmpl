@@ -1,0 +1,177 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.BASE_COND_PACKAGE_NAME}}
+
+import (
+	"fmt"
+	"xorm.io/builder"
+	{{.BASE_PACKAGE_IMPORT}}
+)
+
+func NewRawWhereCondItem[T any](op {{.BASE_PACKAGE_NAME}}.Op, sql string, args ...any) *RawWhereCondItem {
+	return &RawWhereCondItem{
+		sql:  sql,
+		args: args,
+	}
+}
+
+func NewWhereCondItem[T any](op {{.BASE_PACKAGE_NAME}}.Op, column string) *WhereCondItem[T] {
+	return &WhereCondItem[T]{
+		column: column,
+	}
+}
+
+// region RawWhereCondItem
+
+type RawWhereCondItem struct {
+	op   {{.BASE_PACKAGE_NAME}}.Op
+	sql  string
+	args []any
+}
+
+func (receiver *RawWhereCondItem) GetOp() {{.BASE_PACKAGE_NAME}}.Op {
+	return receiver.op
+}
+
+func (receiver *RawWhereCondItem) GetWhereBuilder() builder.Cond {
+	return builder.Expr(receiver.sql, receiver.args...)
+}
+
+// endregion
+
+//region WhereCondItem
+
+type WhereCondItem[T any] struct {
+	op     {{.BASE_PACKAGE_NAME}}.Op
+	column string
+
+	exprList []*Expr[T]
+}
+
+func (receiver *WhereCondItem[T]) Like(arg string) {
+	expr := Like[T](arg)
+	receiver.exprList = append(receiver.exprList, expr)
+}
+func (receiver *WhereCondItem[T]) StartWith(arg string) {
+	receiver.Like(arg + "%")
+}
+func (receiver *WhereCondItem[T]) EndWith(arg string) {
+	receiver.Like("%" + arg)
+}
+func (receiver *WhereCondItem[T]) Contain(arg string) {
+	receiver.Like("%" + arg + "%")
+}
+func (receiver *WhereCondItem[T]) Equ(arg T) {
+	expr := Equ(arg)
+	receiver.exprList = append(receiver.exprList, expr)
+}
+func (receiver *WhereCondItem[T]) Neq(arg T) {
+	expr := Neq(arg)
+	receiver.exprList = append(receiver.exprList, expr)
+}
+func (receiver *WhereCondItem[T]) In(arg ...T) {
+    if len(arg) == 0 {
+		panic(receiver.column + "的In参数不能为空")
+	}
+	expr := In(arg...)
+	receiver.exprList = append(receiver.exprList, expr)
+}
+func (receiver *WhereCondItem[T]) NotIn(arg ...T) {
+    if len(arg) == 0 {
+		panic(receiver.column + "的NotIn参数不能为空")
+	}
+	expr := NotIn(arg...)
+	receiver.exprList = append(receiver.exprList, expr)
+}
+func (receiver *WhereCondItem[T]) Lt(arg T) {
+	expr := Lt(arg)
+	receiver.exprList = append(receiver.exprList, expr)
+}
+func (receiver *WhereCondItem[T]) Gt(arg T) {
+	expr := Gt(arg)
+	receiver.exprList = append(receiver.exprList, expr)
+}
+func (receiver *WhereCondItem[T]) Lte(arg T) {
+	expr := Lte(arg)
+	receiver.exprList = append(receiver.exprList, expr)
+}
+func (receiver *WhereCondItem[T]) Gte(arg T) {
+	expr := Gte(arg)
+	receiver.exprList = append(receiver.exprList, expr)
+}
+func (receiver *WhereCondItem[T]) Between(a T, b T) {
+	expr := Between(a, b)
+	receiver.exprList = append(receiver.exprList, expr)
+}
+func (receiver *WhereCondItem[T]) NotBetween(a T, b T) {
+	expr := NotBetween(a, b)
+	receiver.exprList = append(receiver.exprList, expr)
+}
+func (receiver *WhereCondItem[T]) Null() {
+	expr := Null[T]()
+	receiver.exprList = append(receiver.exprList, expr)
+}
+func (receiver *WhereCondItem[T]) NotNull() {
+	expr := NotNull[T]()
+	receiver.exprList = append(receiver.exprList, expr)
+}
+
+func (receiver *WhereCondItem[T]) GetOp() {{.BASE_PACKAGE_NAME}}.Op {
+	return receiver.op
+}
+
+func (receiver *WhereCondItem[T]) GetWhereBuilder() builder.Cond {
+	cond := builder.NewCond()
+	var cdtItem builder.Cond
+	for _, expr := range receiver.exprList {
+		column := receiver.column
+		args := expr.args
+		switch expr.expr {
+		case ExprLike:
+			cdtItem = builder.Like{column, args[0].(string)}
+			break
+		case ExprEqu:
+			cdtItem = builder.Eq{column: args[0]}
+			break
+		case ExprNeq:
+			cdtItem = builder.Neq{column: args[0]}
+			break
+		case ExprIn:
+			cdtItem = builder.In(column, args...)
+			break
+		case ExprNotIn:
+			cdtItem = builder.NotIn(column, args...)
+			break
+		case ExprLt:
+			cdtItem = builder.Lt{column: args[0]}
+			break
+		case ExprGt:
+			cdtItem = builder.Gt{column: args[0]}
+			break
+		case ExprLte:
+			cdtItem = builder.Lte{column: args[0]}
+			break
+		case ExprGte:
+			cdtItem = builder.Gte{column: args[0]}
+			break
+		case ExprBetween:
+			cdtItem = builder.Between{Col: column, LessVal: args[0], MoreVal: args[1]}
+			break
+		case ExprNotBetween:
+			cdtItem = builder.Not{builder.Between{Col: column, LessVal: args[0], MoreVal: args[1]}}
+			break
+		case ExprNull:
+			cdtItem = builder.IsNull{column}
+			break
+		case ExprNotNull:
+			cdtItem = builder.NotNull{column}
+			break
+		default:
+			panic(fmt.Sprintf("ExprType[%v]无法在 WhereCondItem 中使用", expr.expr))
+		}
+		cond = cond.And(cdtItem)
+	}
+	return cond
+}
+
+// endregion

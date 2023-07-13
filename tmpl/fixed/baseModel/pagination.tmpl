@@ -1,0 +1,43 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.BASE_MODEL_PACKAGE_NAME}}
+
+import (
+	{{.BASE_PACKAGE_IMPORT}}
+	"math"
+)
+
+type Pagination[T any] struct {
+	Data    []T        `json:"list"`
+	Total   uint64     `json:"total"`
+	PageCdt {{.BASE_PACKAGE_NAME}}.IPage `json:"-"`
+}
+
+func (receiver Pagination[T]) PageCount() uint32 {
+	if receiver.PageCdt == nil || !receiver.PageCdt.HasLimit() {
+		return 1
+	}
+	return uint32(math.Ceil(float64(receiver.Total) / float64(receiver.PageCdt.PageSize())))
+}
+
+func (receiver Pagination[T]) Each(fn func(item T)) {
+	for _, item := range receiver.Data {
+		fn(item)
+	}
+}
+
+func (receiver *Pagination[T]) AddDataItem(item T) {
+	receiver.Data = append([]T(receiver.Data), item)
+}
+
+func (receiver *Pagination[T]) DataSize() uint64 {
+	return uint64(len([]T(receiver.Data)))
+}
+
+func NewPagination[T any](data []T, total uint64, pageCdt {{.BASE_PACKAGE_NAME}}.IPage) *Pagination[T] {
+	pagination := new(Pagination[T])
+	pagination.Data = data
+	pagination.Total = total
+	pagination.PageCdt = pageCdt
+	return pagination
+}

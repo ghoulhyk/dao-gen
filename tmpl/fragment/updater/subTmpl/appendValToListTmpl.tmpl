@@ -1,0 +1,5 @@
+{{ define "appendValToListTmpl" }}
+    if receiver.{{.FIELD_NAME}} != nil {
+        result = append(result, receiver.{{.FIELD_NAME}})
+    }
+{{ end }}

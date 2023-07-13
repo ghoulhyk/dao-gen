@@ -1,0 +1,43 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.BASIC_PACKAGE_NAME}}
+
+import (
+	{{.BASE_PACKAGE_IMPORT}}
+)
+
+type deleteHandler struct {
+	c *Client
+}
+
+func (d deleteHandler) Delete(i {{.BASE_PACKAGE_NAME}}.IDeleterParams) (deleteRows uint64, err error) {
+	whereCondList := i.GetWhereCondList()
+	tableInfo := i.TableInfo()
+	session := d.c.session.Table(tableInfo.FullName())
+	if tableInfo.Alias != "" {
+		session.Alias(tableInfo.Alias)
+	}
+
+	for _, item := range *whereCondList {
+		if item.GetOp() == {{.BASE_PACKAGE_NAME}}.Op_OR {
+			session = session.Or(item.GetWhereBuilder())
+		} else {
+			session = session.And(item.GetWhereBuilder())
+		}
+	}
+
+	var cnt int64
+	placeholderObj := placeholder{} // 啥用也没有，纯为满足xorm
+	cnt, err = session.Delete(&placeholderObj)
+	if err != nil {
+		return
+	}
+
+	deleteRows = uint64(cnt)
+
+	return
+}
+
+// 啥用也没有，纯为满足xorm
+type placeholder struct {
+}

@@ -1,0 +1,52 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.SELECTOR_PACKAGE_NAME}}
+
+import (
+	{{.BASE_PACKAGE_IMPORT}}
+	{{.ERRORS_PACKAGE_IMPORT}}
+)
+
+type _count struct {
+	clientHolder {{.BASE_PACKAGE_NAME}}.IClientHolder
+	params       {{.BASE_PACKAGE_NAME}}.ISelectorParams
+}
+
+func (receiver *_count) Count() (uint64, error) {
+	return receiver.clientHolder.GetClient().Count(receiver.params)
+}
+
+// 发生错误直接panic
+// Count为0 不会 panic
+func (receiver *_count) MustCount() uint64 {
+	cnt, err := receiver.Count()
+	if err != nil {
+		if receiver.clientHolder.GetClient().IsInTransaction() {
+			receiver.clientHolder.GetClient().Rollback()
+		}
+		panic({{.ERRORS_PACKAGE_NAME}}.SelectErr(receiver.params.TableInfo().TableName, err))
+	}
+	return cnt
+}
+
+// Deprecated: 使用 MustCount
+func (receiver *_count) CountOrPanic() uint64 {
+	return receiver.MustCount()
+}
+
+type _exist struct {
+	_count
+}
+
+func (receiver *_exist) Exist() (bool, error) {
+	cnt, err := receiver.Count()
+	if err != nil {
+		return false, err
+	}
+	return cnt > 0, nil
+}
+
+func (receiver *_exist) ExistIgnoreErr() bool {
+	exist, _ := receiver.Exist()
+	return exist
+}

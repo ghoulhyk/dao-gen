@@ -1,0 +1,31 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.BASE_COND_PACKAGE_NAME}}
+
+import (
+    "xorm.io/builder"
+	{{.BASE_PACKAGE_IMPORT}}
+)
+
+type WhereCondGroup struct {
+	op    {{.BASE_PACKAGE_NAME}}.Op
+	group []{{.BASE_PACKAGE_NAME}}.IWhereCond
+}
+
+func (receiver WhereCondGroup) GetOp() {{.BASE_PACKAGE_NAME}}.Op {
+	return receiver.op
+}
+
+
+func (receiver WhereCondGroup) GetWhereBuilder() builder.Cond {
+	cond := builder.NewCond()
+	for _, whereCond := range receiver.group {
+		condItem := whereCond.GetWhereBuilder()
+		if whereCond.GetOp() == {{.BASE_PACKAGE_NAME}}.Op_AND {
+			cond = cond.And(condItem)
+		} else {
+			cond = cond.Or(condItem)
+		}
+	}
+	return cond
+}

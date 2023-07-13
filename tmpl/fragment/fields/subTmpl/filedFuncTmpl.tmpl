@@ -1,0 +1,8 @@
+{{ define "filedFuncTmpl" }}
+func (receiver *{{.STRUCT_NAME}}) {{.FIELD_NAME_TITLED}}() *{{.BASE_COND_PACKAGE_NAME}}.FieldCond {
+	tableName := receiver.tableName()
+	fieldExpr := baseCond.NewFieldCond(tableName + "{{.COLUMN_NAME}}")
+	receiver.fields = append(receiver.fields, fieldExpr)
+	return fieldExpr
+}
+{{ end }}

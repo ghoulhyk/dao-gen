@@ -1,0 +1,21 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.INSERTER_PACKAGE_NAME}}
+
+import (
+	{{.MODEL_PACKAGE_IMPORT}}
+	{{.BASE_PACKAGE_IMPORT}}
+	{{.ERRORS_PACKAGE_IMPORT}}
+	{{ if (empty .DATABASE_DEF_FIELD_NAME | not) }}
+	    {{.UTIL_PACKAGE_IMPORT}}
+        {{.DATABASE_DEF_PACKAGE_IMPORT}}
+	{{ end }}
+
+	{{ range .tableImports }}
+	    {{- . -}}
+	{{ end }}
+)
+
+{{ template "dataModelTmpl" . }}
+{{ template "inserterStructTmpl" . }}
+{{ template "bulkInserterStructTmpl" . }}

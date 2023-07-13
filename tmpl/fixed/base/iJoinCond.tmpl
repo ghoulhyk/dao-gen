@@ -1,0 +1,19 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.BASE_PACKAGE_NAME}}
+
+type IJoinCond interface {
+	GetOp() JoinOp
+
+	GetCond() string
+
+	GetJoinIndex() uint8
+}
+
+type JoinOp string
+
+const (
+	JoinOpLeft  JoinOp = "LEFT"
+	JoinOpRight JoinOp = "RIGHT"
+	JoinOpInner JoinOp = "INNER"
+)

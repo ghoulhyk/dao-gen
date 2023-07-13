@@ -1,0 +1,12 @@
+{{ define "inserterSetterFuncTmpl" }}
+{{- if empty .COLUMN_COMMENT | not -}}
+    {{.COLUMN_COMMENT}}
+{{ else }}
+
+{{- end -}}
+func (receiver *{{.INSERTER_WRAPPER_STRUCT_NAME}}) Set{{.FIELD_NAME_TITLED}}({{.FIELD_NAME}} {{.FIELD_TYPE}}) *{{.INSERTER_WRAPPER_STRUCT_NAME}} {
+	receiver.params.insertData.{{.FIELD_NAME_TITLED}} = &{{.FIELD_NAME}}
+	receiver.params.insertData._insertColumns["{{.COLUMN_NAME}}"] = 1
+	return receiver
+}
+{{ end }}

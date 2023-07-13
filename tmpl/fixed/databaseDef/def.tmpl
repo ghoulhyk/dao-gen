@@ -1,0 +1,23 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.DATABASE_DEF_PACKAGE_NAME}}
+
+import (
+    {{ if len .databaseInfos | lt 0 }}
+        {{- .BASE_PACKAGE_IMPORT -}}
+    {{ end }}
+    {{ range $databaseInfo := .databaseInfos -}}
+        {{- if .ShouldUseOutsideConf -}}
+            {{- $.OUTSIDE_PACKAGE_IMPORT -}}
+            {{break}}
+        {{- end }}
+    {{ end }}
+)
+
+{{ range .databaseInfos -}}
+    {{ if .ShouldUseOutsideConf -}}
+        func {{ .FieldName }}() {{$.BASE_PACKAGE_NAME}}.DatabaseInfo { return {{$.BASE_PACKAGE_NAME}}.DatabaseInfo({{$.OUTSIDE_PACKAGE_NAME}}.{{.OutsideConfKey}}) }
+    {{- else -}}
+        func {{ .FieldName }}() {{$.BASE_PACKAGE_NAME}}.DatabaseInfo { return {{$.BASE_PACKAGE_NAME}}.DatabaseInfo("{{.ActualName}}") }
+    {{- end }}
+{{ end }}

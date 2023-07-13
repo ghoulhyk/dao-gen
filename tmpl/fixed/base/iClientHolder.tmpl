@@ -1,0 +1,20 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.BASE_PACKAGE_NAME}}
+
+type IClientHolder interface {
+	GetClient() IClient
+}
+
+type ClientHolder struct {
+	client IClient
+}
+
+func (c *ClientHolder) Init(client IClient) *ClientHolder {
+	c.client = client
+	return c
+}
+
+func (c *ClientHolder) GetClient() IClient {
+	return c.client
+}

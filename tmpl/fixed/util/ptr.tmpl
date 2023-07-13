@@ -1,0 +1,11 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.UTIL_PACKAGE_NAME}}
+
+func ToPtr[T any](item T) *T {
+	return &item
+}
+
+func FromPtr[T any](item *T) T {
+	return *item
+}

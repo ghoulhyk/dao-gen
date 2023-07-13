@@ -1,0 +1,9 @@
+{{ define "appendWhereCondToListTmpl" }}
+	if receiver.{{.FIELD_NAME}} != nil {
+		if receiver.{{.FIELD_NAME}}.GetOp() == {{.BASE_PACKAGE_NAME}}.Op_OR {
+			cond = cond.Or(receiver.{{.FIELD_NAME}}.GetWhereBuilder())
+		} else {
+			cond = cond.And(receiver.{{.FIELD_NAME}}.GetWhereBuilder())
+		}
+	}
+{{ end }}

@@ -1,0 +1,103 @@
+{{ define "bulkInserterStructTmpl" }}
+// region bulkInserter
+
+// region bulkInserterParams
+
+type {{.BULK_INSERTER_PARAMS_STRUCT_NAME}} struct {
+	insertData []{{.INSERTER_DATA_MODEL_STRUCT_NAME}}
+}
+
+func (receiver *{{.BULK_INSERTER_PARAMS_STRUCT_NAME}}) TableInfo() {{.BASE_PACKAGE_NAME}}.TableInfo {
+	return {{.BASE_PACKAGE_NAME}}.TableInfo{
+		DatabaseInfo: {{ if empty .DATABASE_DEF_FIELD_NAME }}nil{{else}}{{.UTIL_PACKAGE_NAME}}.ToPtr({{.DATABASE_DEF_PACKAGE_NAME}}.{{.DATABASE_DEF_FIELD_NAME}}()){{ end }},
+		TableName:    "{{.TABLE_NAME}}",
+	}
+}
+
+func (receiver *{{.BULK_INSERTER_PARAMS_STRUCT_NAME}}) InsertData() []{{.BASE_PACKAGE_NAME}}.IInserterDataModel {
+	result := []{{.BASE_PACKAGE_NAME}}.IInserterDataModel{}
+	for _, data := range receiver.insertData {
+		result = append(result, data)
+	}
+	return result
+}
+
+func (receiver *{{.BULK_INSERTER_PARAMS_STRUCT_NAME}}) HasAutoincrPk() bool {
+	return {{.HAS_AUTOINCR_PK}}
+}
+
+// endregion
+
+
+type {{.BULK_INSERTER_WRAPPER_STRUCT_NAME}} struct {
+	clientHolder {{.BASE_PACKAGE_NAME}}.IClientHolder
+	params       *{{.BULK_INSERTER_PARAMS_STRUCT_NAME}}
+}
+
+// 内部方法，不应调用
+func (receiver *{{.BULK_INSERTER_WRAPPER_STRUCT_NAME}}) Init(client {{.BASE_PACKAGE_NAME}}.IClient) *{{.BULK_INSERTER_WRAPPER_STRUCT_NAME}} {
+	clientHolder := &{{.BASE_PACKAGE_NAME}}.ClientHolder{}
+	clientHolder.Init(client)
+	receiver.params = &{{.BULK_INSERTER_PARAMS_STRUCT_NAME}}{}
+	receiver.clientHolder = clientHolder
+	return receiver
+}
+
+func (receiver *{{.BULK_INSERTER_WRAPPER_STRUCT_NAME}}) AddData(datas ...{{.MODEL_PACKAGE_NAME}}.{{.MODEL_BEAN_NAME}}) *{{.BULK_INSERTER_WRAPPER_STRUCT_NAME}} {
+	for _, data := range datas {
+		inserterModel := {{.INSERTER_DATA_MODEL_STRUCT_NAME}}{}
+		inserterModel._insertColumns = map[string]byte{}
+
+		{{ range .column -}}
+		    {{ template "bulkInserterSetNotNilTmpl" . }}
+		{{- end }}
+
+		receiver.params.insertData = append(receiver.params.insertData, inserterModel)
+	}
+	return receiver
+}
+
+func (receiver *{{.BULK_INSERTER_WRAPPER_STRUCT_NAME}}) AddDataFunc(fun func(data *{{.MODEL_PACKAGE_NAME}}.{{.MODEL_BEAN_NAME}})) *{{.BULK_INSERTER_WRAPPER_STRUCT_NAME}} {
+	data := {{.MODEL_PACKAGE_NAME}}.{{.MODEL_BEAN_NAME}}{}
+	fun(&data)
+	receiver.AddData(data)
+	return receiver
+}
+
+func (receiver *{{.BULK_INSERTER_WRAPPER_STRUCT_NAME}}) Insert() ([]*{{.MODEL_PACKAGE_NAME}}.{{.MODEL_BEAN_NAME}}, error) {
+	_, {{ if .HAS_AUTOINCR_PK }}pkList{{ else }}_{{ end }}, err := receiver.clientHolder.GetClient().BulkInsert(receiver.params)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*{{.MODEL_PACKAGE_NAME}}.{{.MODEL_BEAN_NAME}}, len(receiver.params.insertData))
+	for i, data := range receiver.params.insertData {
+		result[i] = data.RealInsertData().(*{{.MODEL_PACKAGE_NAME}}.{{.MODEL_BEAN_NAME}})
+		{{- if .HAS_AUTOINCR_PK }}
+		result[i].Set{{.PK_FIELD_NAME_TITLED}}({{.PK_FIELD_TYPE}}(pkList[i].(int64)))
+		{{- end }}
+	}
+
+	return result, nil
+}
+
+// 发生错误直接panic
+func (receiver *{{.BULK_INSERTER_WRAPPER_STRUCT_NAME}}) MustInsert() []*{{.MODEL_PACKAGE_NAME}}.{{.MODEL_BEAN_NAME}} {
+	insertResults, err := receiver.Insert()
+	if err != nil {
+		if receiver.clientHolder.GetClient().IsInTransaction() {
+			receiver.clientHolder.GetClient().Rollback()
+		}
+		panic({{.ERRORS_PACKAGE_NAME}}.InsertErr("{{.TABLE_NAME}}", err))
+	}
+
+	return insertResults
+}
+
+// Deprecated: 使用 MustInsert
+func (receiver *{{.BULK_INSERTER_WRAPPER_STRUCT_NAME}}) InsertOrPanic() []*{{.MODEL_PACKAGE_NAME}}.{{.MODEL_BEAN_NAME}} {
+	return receiver.MustInsert()
+}
+
+// endregion
+{{ end }}

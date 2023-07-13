@@ -1,0 +1,128 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.UPDATER_PACKAGE_NAME}}
+
+import (
+	"fmt"
+    {{.BASE_PACKAGE_IMPORT}}
+    {{.BASE_COND_PACKAGE_IMPORT}}
+    {{.WHERE_COND_PACKAGE_IMPORT}}
+    {{.ERRORS_PACKAGE_IMPORT}}
+
+	{{ if (empty .DATABASE_DEF_FIELD_NAME | not) }}
+	    {{.UTIL_PACKAGE_IMPORT}}
+        {{.DATABASE_DEF_PACKAGE_IMPORT}}
+	{{ end }}
+
+	{{ range .tableImports }}
+	    {{- . -}}
+	{{ end }}
+)
+
+// region updaterParams
+
+type {{.UPDATER_PARAMS_STRUCT_NAME}} struct {
+	whereCondList []{{.BASE_PACKAGE_NAME}}.IWhereCond
+	limit         int
+
+	// region UpdateValItem
+
+	{{ range .column }}
+	    {{- .FIELD_NAME}} *{{.BASE_COND_PACKAGE_NAME}}.UpdateValItem {{- if .COLUMN_COMMENT }} {{.COLUMN_COMMENT}} {{ end }}
+	{{ end }}
+
+	// endregion
+}
+
+func (receiver *{{.UPDATER_PARAMS_STRUCT_NAME}}) TableInfo() {{.BASE_PACKAGE_NAME}}.TableInfo {
+	return {{.BASE_PACKAGE_NAME}}.TableInfo{
+		DatabaseInfo: {{ if empty .DATABASE_DEF_FIELD_NAME }}nil{{else}}{{.UTIL_PACKAGE_NAME}}.ToPtr({{.DATABASE_DEF_PACKAGE_NAME}}.{{.DATABASE_DEF_FIELD_NAME}}()){{ end }},
+		TableName:    "{{.TABLE_NAME}}",
+	}
+}
+
+func (receiver *{{.UPDATER_PARAMS_STRUCT_NAME}}) GetWhereCondList() *[]{{.BASE_PACKAGE_NAME}}.IWhereCond {
+	return &receiver.whereCondList
+}
+
+func (receiver *{{.UPDATER_PARAMS_STRUCT_NAME}}) GetUpdateValItemList() *[]{{.BASE_PACKAGE_NAME}}.IUpdateValItem {
+	var result []{{.BASE_PACKAGE_NAME}}.IUpdateValItem
+
+    {{ range .column }}
+        {{- template "appendValToListTmpl" . -}}
+    {{ end }}
+
+	return &result
+}
+
+func (receiver *{{.UPDATER_PARAMS_STRUCT_NAME}}) GetLimit() int {
+	return receiver.limit
+}
+
+// endregion
+
+type {{.UPDATER_WRAPPER_STRUCT_NAME}} struct {
+	clientHolder {{.BASE_PACKAGE_NAME}}.IClientHolder
+	params       *{{.UPDATER_PARAMS_STRUCT_NAME}}
+}
+
+func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) Init(client {{.BASE_PACKAGE_NAME}}.IClient) *{{.UPDATER_WRAPPER_STRUCT_NAME}} {
+	clientHolder := &{{.BASE_PACKAGE_NAME}}.ClientHolder{}
+	clientHolder.Init(client)
+	receiver.clientHolder = clientHolder
+	receiver.params = &{{.UPDATER_PARAMS_STRUCT_NAME}}{}
+	receiver.params.limit = -1
+	return receiver
+}
+
+func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) Where(fun func(cond *{{.WHERE_COND_PACKAGE_NAME}}.{{.STRUCT_NAME}})) *{{.UPDATER_WRAPPER_STRUCT_NAME}} {
+	return receiver.AndWhere(fun)
+}
+
+func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) AndWhere(fun func(cond *{{.WHERE_COND_PACKAGE_NAME}}.{{.STRUCT_NAME}})) *{{.UPDATER_WRAPPER_STRUCT_NAME}} {
+	cond := {{.WHERE_COND_PACKAGE_NAME}}.{{.WHERE_COND_STRUCT_CONSTRUCTOR_NAME}}({{.BASE_PACKAGE_NAME}}.Op_AND, {{.UTIL_PACKAGE_NAME}}.ToPtr(receiver.params.TableInfo()))
+	fun(cond)
+	receiver.params.whereCondList = append(receiver.params.whereCondList, cond)
+	return receiver
+}
+
+func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) OrWhere(fun func(cond *{{.WHERE_COND_PACKAGE_NAME}}.{{.STRUCT_NAME}})) *{{.UPDATER_WRAPPER_STRUCT_NAME}} {
+	cond := {{.WHERE_COND_PACKAGE_NAME}}.{{.WHERE_COND_STRUCT_CONSTRUCTOR_NAME}}({{.BASE_PACKAGE_NAME}}.Op_OR, {{.UTIL_PACKAGE_NAME}}.ToPtr(receiver.params.TableInfo()))
+	fun(cond)
+	receiver.params.whereCondList = append(receiver.params.whereCondList, cond)
+	return receiver
+}
+
+func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) Limit(limit uint) *{{.UPDATER_WRAPPER_STRUCT_NAME}} {
+    receiver.params.limit = int(limit)
+	return receiver
+}
+
+func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) Update() (updateRows uint64, err error) {
+	return receiver.clientHolder.GetClient().Update(receiver.params)
+}
+
+// 发生错误直接panic
+// 更新数量为0 不会 panic
+func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) MustUpdate() (updateRows uint64) {
+	updateRows, err := receiver.Update()
+	if err != nil {
+		if receiver.clientHolder.GetClient().IsInTransaction() {
+			receiver.clientHolder.GetClient().Rollback()
+		}
+		panic({{.ERRORS_PACKAGE_NAME}}.UpdateErr("{{.TABLE_NAME}}", err))
+	}
+
+	return
+}
+
+// Deprecated: 使用 MustUpdate
+func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) UpdateOrPanic() (updateRows uint64) {
+	return receiver.MustUpdate()
+}
+
+// region val setter
+{{ range .column }}
+    {{- template "valSetterTmpl" . -}}
+{{ end }}
+// endregion

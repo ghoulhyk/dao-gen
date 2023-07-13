@@ -1,0 +1,6 @@
+{{ define "bulkInserterSetNotNilTmpl" }}
+        if data.{{.FIELD_NAME_TITLED}} != nil {
+            inserterModel.{{.FIELD_NAME_TITLED}} = data.{{.FIELD_NAME_TITLED}}
+            inserterModel._insertColumns["{{.COLUMN_NAME}}"] = 1
+        }
+{{ end }}

@@ -1,0 +1,51 @@
+{{ define "getterSetterFuncsTmpl" }}
+
+// region {{.FIELD_NAME}}
+
+{{ if empty .COLUMN_COMMENT | not -}}
+    {{.COLUMN_COMMENT}}
+{{ else }}
+
+{{- end -}}
+func (receiver *{{.STRUCT_NAME}}) Get{{.FIELD_NAME_TITLED}}() {{.FIELD_TYPE_WITH_OUT_MODEL_PKG}} {
+	if receiver.{{.FIELD_NAME_TITLED}} == nil {
+		var _default {{.FIELD_TYPE_WITH_OUT_MODEL_PKG}}
+		return _default
+	}
+	return *receiver.{{.FIELD_NAME_TITLED}}
+}
+{{ if empty .COLUMN_COMMENT | not -}}
+    {{.COLUMN_COMMENT}}
+{{ else }}
+
+{{- end -}}
+func (receiver *{{.STRUCT_NAME}}) Get{{.FIELD_NAME_TITLED}}Ptr() *{{.FIELD_TYPE_WITH_OUT_MODEL_PKG}} {
+	return receiver.{{.FIELD_NAME_TITLED}}
+}
+{{ if empty .COLUMN_COMMENT | not -}}
+    {{.COLUMN_COMMENT}}
+{{ else }}
+
+{{- end -}}
+func (receiver *{{.STRUCT_NAME}}) Is{{.FIELD_NAME_TITLED}}Nil() bool {
+	return receiver.{{.FIELD_NAME_TITLED}} == nil
+}
+{{ if empty .COLUMN_COMMENT | not -}}
+    {{.COLUMN_COMMENT}}
+{{ else }}
+
+{{- end -}}
+func (receiver *{{.STRUCT_NAME}}) Set{{.FIELD_NAME_TITLED}}({{.FIELD_NAME}} {{.FIELD_TYPE_WITH_OUT_MODEL_PKG}}) {
+	receiver.{{.FIELD_NAME_TITLED}} = &{{.FIELD_NAME}}
+}
+{{ if empty .COLUMN_COMMENT | not -}}
+    {{.COLUMN_COMMENT}}
+{{ else }}
+
+{{- end -}}
+func (receiver *{{.STRUCT_NAME}}) Set{{.FIELD_NAME_TITLED}}Ptr({{.FIELD_NAME}} *{{.FIELD_TYPE_WITH_OUT_MODEL_PKG}}) {
+	receiver.{{.FIELD_NAME_TITLED}} = {{.FIELD_NAME}}
+}
+
+// endregion
+{{ end }}

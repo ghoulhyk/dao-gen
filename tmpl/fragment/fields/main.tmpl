@@ -1,0 +1,42 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.FIELDS_PACKAGE_NAME}}
+
+import (
+	{{.BASE_PACKAGE_IMPORT}}
+	{{.BASE_COND_PACKAGE_IMPORT}}
+	"strings"
+	"fmt"
+)
+
+type {{.STRUCT_NAME}} struct {
+	_tableInfo *{{.BASE_PACKAGE_NAME}}.TableInfo
+	fields     []*{{.BASE_COND_PACKAGE_NAME}}.FieldCond
+}
+
+func New{{.STRUCT_NAME}}(tableInfo *{{.BASE_PACKAGE_NAME}}.TableInfo) *{{.STRUCT_NAME}} {
+	return &{{.STRUCT_NAME}}{
+		_tableInfo: tableInfo,
+	}
+}
+
+func (receiver {{.STRUCT_NAME}}) GetFieldList() string {
+	var columns []string
+	for _, field := range receiver.fields {
+		columns = append(columns, field.Sql())
+	}
+	return strings.Join(columns, ", ")
+}
+
+func (receiver *{{.STRUCT_NAME}}) tableName() string {
+	tableName := ""
+	if receiver._tableInfo != nil && receiver._tableInfo.Alias != "" {
+		tableName = receiver._tableInfo.Alias
+		tableName = fmt.Sprintf("`%s`.", tableName)
+	}
+	return tableName
+}
+
+{{ range .column }}
+    {{ template "filedFuncTmpl" . }}
+{{ end }}

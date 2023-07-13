@@ -1,0 +1,19 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.BASIC_PACKAGE_NAME}}
+
+import (
+	{{.BASE_PACKAGE_IMPORT}}
+	{{.INSERTER_PACKAGE_IMPORT}}
+)
+
+type inserterGroup struct {
+	client {{.BASE_PACKAGE_NAME}}.IClient
+}
+
+{{ range .tables }}
+// {{.name}}
+func (receiver inserterGroup) {{.name}}() *{{$.INSERTER_PACKAGE_NAME}}.{{.inserterWrapperStructName}} {
+    return (&{{$.INSERTER_PACKAGE_NAME}}.{{.inserterWrapperStructName}}{}).Init(receiver.client)
+}
+{{- end }}

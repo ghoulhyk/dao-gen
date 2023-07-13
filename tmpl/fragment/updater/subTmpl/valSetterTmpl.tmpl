@@ -1,0 +1,60 @@
+{{ define "valSetterTmpl" }}
+// region {{.FIELD_NAME}}
+
+func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) Set{{.FIELD_NAME_TITLED}}(val {{.FIELD_TYPE}}) *{{.UPDATER_WRAPPER_STRUCT_NAME}} {
+	return receiver.Set{{.FIELD_NAME_TITLED}}Ptr(&val)
+}
+
+func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) Set{{.FIELD_NAME_TITLED}}Ptr(ptr *{{.FIELD_TYPE}}) *{{.UPDATER_WRAPPER_STRUCT_NAME}} {
+	receiver.get{{.FIELD_NAME_TITLED}}().SetPtr(ptr)
+	return receiver
+}
+
+func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) Set{{.FIELD_NAME_TITLED}}Expr(sql string) *{{.UPDATER_WRAPPER_STRUCT_NAME}} {
+	receiver.get{{.FIELD_NAME_TITLED}}().SetRawSql(sql)
+	return receiver
+}
+
+{{ if eq .FIELD_TYPE "string" | not -}}
+// Set{{.FIELD_NAME_TITLED}}Incr 自增,默认为 1
+func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) Set{{.FIELD_NAME_TITLED}}Incr(steps ...interface{}) *{{.UPDATER_WRAPPER_STRUCT_NAME}} {
+	var step interface{} = 1
+
+	if len(steps) > 0 {
+		switch steps[0].(type) {
+		case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64:
+			step = steps[0]
+		default:
+			panic("Set{{.FIELD_NAME_TITLED}}Incr 参数类型不支持")
+		}
+	}
+
+	return receiver.Set{{.FIELD_NAME_TITLED}}Expr(fmt.Sprintf("{{.COLUMN_NAME}} + %v", step))
+}
+
+// Set{{.FIELD_NAME_TITLED}}Decr 自减,默认为 1
+func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) Set{{.FIELD_NAME_TITLED}}Decr(steps ...interface{}) *{{.UPDATER_WRAPPER_STRUCT_NAME}} {
+	var step interface{} = 1
+
+	if len(steps) > 0 {
+		switch steps[0].(type) {
+		case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64:
+			step = steps[0]
+		default:
+			panic("Set{{.FIELD_NAME_TITLED}}Decr 参数类型不支持")
+		}
+	}
+
+	return receiver.Set{{.FIELD_NAME_TITLED}}Expr(fmt.Sprintf("{{.COLUMN_NAME}} - %v", step))
+}
+{{- end }}
+
+func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) get{{.FIELD_NAME_TITLED}}() *{{.BASE_COND_PACKAGE_NAME}}.UpdateValItem {
+	if receiver.params.{{.FIELD_NAME}} == nil {
+		receiver.params.{{.FIELD_NAME}} = {{.BASE_COND_PACKAGE_NAME}}.NewUpdateValItem("{{.COLUMN_NAME}}")
+	}
+	return receiver.params.{{.FIELD_NAME}}
+}
+
+// endregion
+{{ end }}

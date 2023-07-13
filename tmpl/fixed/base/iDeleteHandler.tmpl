@@ -1,0 +1,7 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.BASE_PACKAGE_NAME}}
+
+type IDeleteHandler interface {
+	Delete(IDeleterParams) (deleteRows uint64, err error)
+}

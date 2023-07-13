@@ -1,0 +1,28 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.MODEL_PACKAGE_NAME}}
+
+import (
+	"encoding/json"
+
+	{{ range .tableImports }}
+	    {{- . -}}
+	{{ end }}
+)
+
+type {{.MODEL_BEAN_NAME}} struct {
+	{{ range .column -}}
+	    {{.FIELD_NAME_TITLED}} *{{.FIELD_TYPE_WITH_OUT_MODEL_PKG}} {{.FIELD_TAG}}{{ if .COLUMN_COMMENT }} {{.COLUMN_COMMENT}} {{ end }}
+	{{ end }}
+}
+
+// region getterSetter
+{{ range .column -}}
+    {{ template "getterSetterFuncsTmpl" . }}
+{{- end }}
+// endregion
+
+func (receiver *{{.STRUCT_NAME}}) String() string {
+	data, _ := json.Marshal(receiver)
+	return string(data)
+}

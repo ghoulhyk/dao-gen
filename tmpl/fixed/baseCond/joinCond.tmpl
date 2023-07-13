@@ -1,0 +1,47 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.BASE_COND_PACKAGE_NAME}}
+
+import {{.BASE_PACKAGE_IMPORT}}
+
+type JoinCond struct {
+	joinIndex uint8
+	op        {{.BASE_PACKAGE_NAME}}.JoinOp
+	cond      string
+}
+
+func (receiver JoinCond) GetOp() {{.BASE_PACKAGE_NAME}}.JoinOp {
+	return receiver.op
+}
+
+func (receiver JoinCond) GetCond() string {
+	return receiver.cond
+}
+
+func (receiver JoinCond) GetJoinIndex() uint8 {
+	return receiver.joinIndex
+}
+
+func LeftJoin(joinIndex uint8, cond string) {{.BASE_PACKAGE_NAME}}.IJoinCond {
+	return &JoinCond{
+        joinIndex: joinIndex,
+		op:        {{.BASE_PACKAGE_NAME}}.JoinOpLeft,
+		cond:      cond,
+	}
+}
+
+func RightJoin(joinIndex uint8, cond string) {{.BASE_PACKAGE_NAME}}.IJoinCond {
+	return &JoinCond{
+        joinIndex: joinIndex,
+		op:        {{.BASE_PACKAGE_NAME}}.JoinOpRight,
+		cond:      cond,
+	}
+}
+
+func InnerJoin(joinIndex uint8, cond string) {{.BASE_PACKAGE_NAME}}.IJoinCond {
+	return &JoinCond{
+        joinIndex: joinIndex,
+		op:        {{.BASE_PACKAGE_NAME}}.JoinOpInner,
+		cond:      cond,
+	}
+}

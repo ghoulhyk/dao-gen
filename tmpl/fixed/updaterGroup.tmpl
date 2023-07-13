@@ -1,0 +1,19 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.BASIC_PACKAGE_NAME}}
+
+import (
+	{{.BASE_PACKAGE_IMPORT}}
+	{{.UPDATER_PACKAGE_IMPORT}}
+)
+
+type updaterGroup struct {
+	client {{.BASE_PACKAGE_NAME}}.IClient
+}
+
+{{ range .tables }}
+// {{.name}}
+func (receiver updaterGroup) {{.name}}() *{{$.UPDATER_PACKAGE_NAME}}.{{.updaterWrapperStructName}} {
+    return (&{{$.UPDATER_PACKAGE_NAME}}.{{.updaterWrapperStructName}}{}).Init(receiver.client)
+}
+{{- end }}

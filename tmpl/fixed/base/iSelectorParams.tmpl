@@ -1,0 +1,12 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.BASE_PACKAGE_NAME}}
+
+type ISelectorParams interface {
+	TableInfo() TableInfo
+	ProvideResultData() interface{}
+	GetWhereCondList() *[]IWhereCond
+	GetPageCond() IPage
+	GetOrderCondList() *[]IOrder
+	GetFieldList() *[]IFieldList
+}

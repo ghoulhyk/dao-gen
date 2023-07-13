@@ -1,0 +1,10 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.BASE_PACKAGE_NAME}}
+
+type ITransactionHandler interface {
+	StartTransaction() error
+	Commit() error
+	Rollback() error
+	IsInTransaction() bool
+}

@@ -1,0 +1,19 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.BASE_PACKAGE_NAME}}
+
+type TableInfo struct {
+	DatabaseInfo *DatabaseInfo
+	TableName    string
+	Alias        string
+}
+
+func (receiver TableInfo) FullName() string {
+	var fillName string
+	if receiver.DatabaseInfo != nil {
+		fillName += string(*receiver.DatabaseInfo)
+		fillName += "."
+	}
+	fillName += receiver.TableName
+	return fillName
+}

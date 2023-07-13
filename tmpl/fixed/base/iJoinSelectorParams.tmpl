@@ -1,0 +1,13 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.BASE_PACKAGE_NAME}}
+
+type IJoinSelectorParams interface {
+	Joins() map[TableInfo]IJoinCond
+	TableInfo() TableInfo
+	ProvideResultData() interface{}
+	GetWhereCondList() *[]IWhereCond
+	GetPageCond() IPage
+	GetOrderCondList() *[]IOrder
+	GetFieldList() *[]IFieldList
+}

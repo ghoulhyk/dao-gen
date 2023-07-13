@@ -1,0 +1,185 @@
+{{.AUTO_GENERATED_ANNOTATION}}
+
+package {{.BASE_COND_PACKAGE_NAME}}
+
+type ExprType uint8
+
+const (
+	ExprSum      ExprType = 1 + iota // SUM(?)
+	ExprAvg                          // AVG(?)
+	ExprDistinct                     // DISTINCT ?
+	ExprCount                        // COUNT(?)
+
+	ExprAdd        // ? + ?
+	ExprSub        // ? - ?
+	ExprMul        // ? * ?
+	ExprDiv        // ? / ?
+	ExprMod        // ? % ?
+	ExprLike       // ? LIKE ?
+	ExprIn         // ? IN (?, ?)
+	ExprNotIn      // ? NOT IN (?, ?)
+	ExprEqu        // ? = ?
+	ExprNeq        // ? != ?
+	ExprLt         // ? < ?
+	ExprGt         // ? > ?
+	ExprLte        // ? <= ?
+	ExprGte        // ? >= ?
+	ExprBetween    // ? BETWEEN ? AND ?
+	ExprNotBetween // ? NOT BETWEEN ? AND ?
+	ExprNull       // ? IS NULL
+	ExprNotNull    // ? IS NOT NULL
+
+	ExprRaw
+)
+
+type Expr[T any] struct {
+	expr ExprType
+	args []any
+}
+
+func (receiver Expr[T]) Type() ExprType {
+	return receiver.expr
+}
+
+func (receiver Expr[T]) Args() []any {
+	return receiver.args
+}
+
+// region Constructor
+
+func Sum[T any]() *Expr[T] {
+	return &Expr[T]{
+		expr: ExprSum,
+	}
+}
+func Avg[T any]() *Expr[T] {
+	return &Expr[T]{
+		expr: ExprAvg,
+	}
+}
+func Distinct[T any]() *Expr[T] {
+	return &Expr[T]{
+		expr: ExprDistinct,
+	}
+}
+func Count[T any]() *Expr[T] {
+	return &Expr[T]{
+		expr: ExprCount,
+	}
+}
+func Add[T any](arg T) *Expr[T] {
+	return &Expr[T]{
+		expr: ExprAdd,
+		args: []any{arg},
+	}
+}
+func Sub[T any](arg T) *Expr[T] {
+	return &Expr[T]{
+		expr: ExprSub,
+		args: []any{arg},
+	}
+}
+func Mul[T any](arg T) *Expr[T] {
+	return &Expr[T]{
+		expr: ExprMul,
+		args: []any{arg},
+	}
+}
+func Div[T any](arg T) *Expr[T] {
+	return &Expr[T]{
+		expr: ExprDiv,
+		args: []any{arg},
+	}
+}
+func Mod[T any](arg T) *Expr[T] {
+	return &Expr[T]{
+		expr: ExprMod,
+		args: []any{arg},
+	}
+}
+func Like[T any](arg string) *Expr[T] {
+	return &Expr[T]{
+		expr: ExprLike,
+		args: []any{arg},
+	}
+}
+func Equ[T any](arg T) *Expr[T] {
+	return &Expr[T]{
+		expr: ExprEqu,
+		args: []any{arg},
+	}
+}
+func Neq[T any](arg T) *Expr[T] {
+	return &Expr[T]{
+		expr: ExprNeq,
+		args: []any{arg},
+	}
+}
+func In[T any](arg ...T) *Expr[T] {
+	return &Expr[T]{
+		expr: ExprIn,
+		args: []any{arg},
+	}
+}
+func NotIn[T any](arg ...T) *Expr[T] {
+	return &Expr[T]{
+		expr: ExprNotIn,
+		args: []any{arg},
+	}
+}
+func Lt[T any](arg T) *Expr[T] {
+	return &Expr[T]{
+		expr: ExprLt,
+		args: []any{arg},
+	}
+}
+func Gt[T any](arg T) *Expr[T] {
+	return &Expr[T]{
+		expr: ExprGt,
+		args: []any{arg},
+	}
+}
+func Lte[T any](arg T) *Expr[T] {
+	return &Expr[T]{
+		expr: ExprLte,
+		args: []any{arg},
+	}
+}
+func Gte[T any](arg T) *Expr[T] {
+	return &Expr[T]{
+		expr: ExprGte,
+		args: []any{arg},
+	}
+}
+func Between[T any](a T, b T) *Expr[T] {
+	return &Expr[T]{
+		expr: ExprBetween,
+		args: []any{a, b},
+	}
+}
+func NotBetween[T any](a T, b T) *Expr[T] {
+	return &Expr[T]{
+		expr: ExprNotBetween,
+		args: []any{a, b},
+	}
+}
+func Null[T any]() *Expr[T] {
+	return &Expr[T]{
+		expr: ExprNull,
+	}
+}
+func NotNull[T any]() *Expr[T] {
+	return &Expr[T]{
+		expr: ExprNotNull,
+	}
+}
+func Raw[T any](sql string, arg ...any) *Expr[T] {
+	args := []any{sql}
+	args = append(args, arg...)
+	return &Expr[T]{
+		expr: ExprRaw,
+		args: args,
+	}
+}
+
+// endregion
