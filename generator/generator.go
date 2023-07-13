@@ -1,9 +1,9 @@
 package generator
 
 import (
-	"daogen/conf"
-	"daogen/utils"
 	"fmt"
+	"github.com/ghoulhyk/dao-gen/conf"
+	"github.com/ghoulhyk/dao-gen/utils"
 	"path/filepath"
 	"time"
 )

@@ -1,10 +1,10 @@
 package bean
 
 import (
-	"daogen/conf"
-	"daogen/conf/confBean"
 	"fmt"
 	"github.com/dave/dst"
+	"github.com/ghoulhyk/dao-gen/conf"
+	"github.com/ghoulhyk/dao-gen/conf/confBean"
 	"strings"
 )
 

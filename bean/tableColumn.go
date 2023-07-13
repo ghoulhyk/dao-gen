@@ -1,11 +1,11 @@
 package bean
 
 import (
-	"daogen/conf"
-	"daogen/utils"
 	"errors"
 	"fmt"
 	"github.com/dave/dst"
+	"github.com/ghoulhyk/dao-gen/conf"
+	"github.com/ghoulhyk/dao-gen/utils"
 	"github.com/samber/lo"
 	"reflect"
 	"regexp"

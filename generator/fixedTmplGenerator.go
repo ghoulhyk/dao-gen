@@ -1,9 +1,9 @@
 package generator
 
 import (
-	"daogen/conf"
-	"daogen/conf/confBean"
-	"daogen/tmpl"
+	"github.com/ghoulhyk/dao-gen/conf"
+	"github.com/ghoulhyk/dao-gen/conf/confBean"
+	"github.com/ghoulhyk/dao-gen/tmpl"
 	"github.com/samber/lo"
 	"io/fs"
 	"os"

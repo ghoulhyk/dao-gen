@@ -1,7 +1,7 @@
 package generator
 
 import (
-	"daogen/bean"
+	"github.com/ghoulhyk/dao-gen/bean"
 	"github.com/samber/lo"
 )
 

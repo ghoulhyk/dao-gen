@@ -1,9 +1,9 @@
 package generator
 
 import (
-	"daogen/bean"
-	"daogen/conf"
-	"daogen/utils"
+	"github.com/ghoulhyk/dao-gen/bean"
+	"github.com/ghoulhyk/dao-gen/conf"
+	"github.com/ghoulhyk/dao-gen/utils"
 	"path/filepath"
 )
 

@@ -1,11 +1,11 @@
 package generator
 
 import (
-	"daogen/bean"
-	"daogen/utils"
-	"daogen/utils/annotationUtils"
 	"github.com/dave/dst"
 	"github.com/dave/dst/decorator"
+	"github.com/ghoulhyk/dao-gen/bean"
+	"github.com/ghoulhyk/dao-gen/utils"
+	"github.com/ghoulhyk/dao-gen/utils/annotationUtils"
 	"github.com/samber/lo"
 	"go/token"
 	"io/fs"

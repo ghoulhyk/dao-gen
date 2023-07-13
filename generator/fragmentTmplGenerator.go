@@ -1,11 +1,11 @@
 package generator
 
 import (
-	"daogen/bean"
-	"daogen/conf"
-	"daogen/conf/confBean"
-	"daogen/tmpl"
 	"github.com/Masterminds/sprig/v3"
+	"github.com/ghoulhyk/dao-gen/bean"
+	"github.com/ghoulhyk/dao-gen/conf"
+	"github.com/ghoulhyk/dao-gen/conf/confBean"
+	"github.com/ghoulhyk/dao-gen/tmpl"
 	"github.com/samber/lo"
 	"io/fs"
 	"os"

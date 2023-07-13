@@ -1,4 +1,4 @@
-module daogen
+module github.com/ghoulhyk/dao-gen
 
 require (
 	github.com/BurntSushi/toml v1.3.2

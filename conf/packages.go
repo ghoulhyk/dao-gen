@@ -1,8 +1,8 @@
 package conf
 
 import (
-	"daogen/conf/confBean"
-	"daogen/utils"
+	"github.com/ghoulhyk/dao-gen/conf/confBean"
+	"github.com/ghoulhyk/dao-gen/utils"
 	"github.com/samber/lo"
 	"os"
 	"path/filepath"

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"daogen/generator"
 	"flag"
+	"github.com/ghoulhyk/dao-gen/generator"
 )
 
 var (

@@ -1,7 +1,7 @@
 package confBean
 
 import (
-	"daogen/utils"
+	"github.com/ghoulhyk/dao-gen/utils"
 	"github.com/samber/lo"
 )
 

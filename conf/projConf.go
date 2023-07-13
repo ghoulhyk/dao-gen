@@ -1,8 +1,8 @@
 package conf
 
 import (
-	"daogen/conf/confBean"
 	"github.com/BurntSushi/toml"
+	"github.com/ghoulhyk/dao-gen/conf/confBean"
 )
 
 var (
