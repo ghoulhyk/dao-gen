@@ -69,7 +69,7 @@ func (receiver *TableInfo) ImportsStr() []string {
 	result := []string{}
 	for _, spec := range receiver.Imports() {
 		importStr := ""
-		if spec.Name.Name != "" {
+		if spec.Name != nil && spec.Name.Name != "" {
 			importStr += spec.Name.Name
 			importStr += " "
 		}
