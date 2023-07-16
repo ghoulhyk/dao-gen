@@ -2,8 +2,6 @@ package generator
 
 import (
 	"bytes"
-	"errors"
-	"fmt"
 	"github.com/Masterminds/sprig/v3"
 	"github.com/ghoulhyk/dao-gen/bean"
 	"github.com/ghoulhyk/dao-gen/conf"
@@ -111,7 +109,6 @@ func generateFragmentTmplItem(basicPath string, pkgInfo confBean.PackageInfo, ds
 	// 格式化源代码
 	formattedSource, err := format.Source(sourceBytes)
 	if err != nil {
-		err = errors.Join(errors.New(fmt.Sprintf("tmplDir:[%s] tmplFile:[%s] dstCode:[%s]", pkgInfo.DirTmplFileRelative(), dstFile, string(sourceBytes))), err)
 		panic(err)
 	}
 

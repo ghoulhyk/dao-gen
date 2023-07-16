@@ -207,16 +207,20 @@ func (c *Client) Release() error {
 	return nil
 }
 
-func (c *Client) TransactionFunc(fn func(client *Client) error) error {
+func (c *Client) TransactionFunc(fn func(client *Client) error) (err error) {
 	c.StartTransaction()
 	defer func() {
 		if r := recover(); r != nil {
 			c.TryRollbackAndRelease()
-			panic(r)
+			if err1, ok := r.(error); ok {
+				err = err1
+			} else {
+				err = fmt.Errorf("%v", err1)
+			}
 		}
 		c.Release()
 	}()
-	err := fn(c)
+	err = fn(c)
 	if err != nil {
 		c.Rollback()
 		return err
@@ -253,13 +257,18 @@ func TransactionFunc(fn func(client *Client) error) error {
 {{- $letterList = slice $letterList 0 $n -}}
 {{- $returnVals := join ", " $letterList -}}
 {{- $returnTypes := upper $returnVals -}}
-func TransactionFunc{{$n}}[{{$returnTypes}} any](fn func(client *Client) ({{$returnTypes}}, error)) ({{$returnTypes}}, error) {
+{{- $returnTypeWithIgnoredVals := join ",_ " $letterList | cat "_ " | upper -}}
+func TransactionFunc{{$n}}[{{$returnTypes}} any](fn func(client *Client) ({{$returnTypes}}, error)) ({{$returnTypeWithIgnoredVals}}, err error) {
 	client := NewClient()
 	client.StartTransaction()
 	defer func() {
 		if r := recover(); r != nil {
 			client.TryRollbackAndRelease()
-			panic(r)
+			if err1, ok := r.(error); ok {
+				err = err1
+			} else {
+				err = fmt.Errorf("%v", err1)
+			}
 		}
 		client.Release()
 	}()
