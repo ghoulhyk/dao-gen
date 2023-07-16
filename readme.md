@@ -1,6 +1,6 @@
 使用
 ```
-go install github.com/ghoulhyk/dao-gen@latest
+go install github.com/ghoulhyk/dao-gen
 ```
 安装命令。
 

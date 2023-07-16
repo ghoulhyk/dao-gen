@@ -2,8 +2,6 @@
 
 package {{.BASE_COND_PACKAGE_NAME}}
 
-import "ybcdn.cn/pkg/response"
-
 type Page struct {
 	noLimit bool
 
@@ -25,10 +23,6 @@ func PageCdtNoLimit() *Page {
 	return &Page{
 		noLimit: true,
 	}
-}
-
-func PageCdtFromReq(query response.PageQuery) *Page {
-	return PageCdtLimited(query.GetPage()-1, query.GetPageSize())
 }
 
 func (receiver Page) HasLimit() bool {
