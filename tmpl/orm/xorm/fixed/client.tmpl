@@ -242,47 +242,38 @@ func NewClient() *Client {
 	return NewClientWithSession({{.ORM_SESSION_GETTER_FUNC}})
 }
 
+// region TransactionFunc
+
 func TransactionFunc(fn func(client *Client) error) error {
 	return NewClient().TransactionFunc(fn)
 }
 
-func TransactionFunc1[A any](fn func(client *Client) (A, error)) (A, error) {
-	c := NewClient()
-	c.StartTransaction()
+{{ range $n := list 1 2 3 4 5 6 7 8 9 }}
+{{- $letterList := splitList "" "abcdefghi" -}}
+{{- $letterList = slice $letterList 0 $n -}}
+{{- $returnVals := join ", " $letterList -}}
+{{- $returnTypes := upper $returnVals -}}
+func TransactionFunc{{$n}}[{{$returnTypes}} any](fn func(client *Client) ({{$returnTypes}}, error)) ({{$returnTypes}}, error) {
+	client := NewClient()
+	client.StartTransaction()
 	defer func() {
 		if r := recover(); r != nil {
-			c.TryRollbackAndRelease()
+			client.TryRollbackAndRelease()
 			panic(r)
 		}
-		c.Release()
+		client.Release()
 	}()
-	a, err := fn(c)
+	{{$returnVals}}, err := fn(client)
 	if err != nil {
-		c.Rollback()
-		return a, err
+		client.Rollback()
+		return {{$returnVals}}, err
 	}
-	err = c.Commit()
-	return a, err
+	err = client.Commit()
+	return {{$returnVals}}, err
 }
+{{ end }}
 
-func TransactionFunc2[A any, B any](fn func(client *Client) (A, B, error)) (A, B, error) {
-	c := NewClient()
-	c.StartTransaction()
-	defer func() {
-		if r := recover(); r != nil {
-			c.TryRollbackAndRelease()
-			panic(r)
-		}
-		c.Release()
-	}()
-	a, b, err := fn(c)
-	if err != nil {
-		c.Rollback()
-		return a, b, err
-	}
-	err = c.Commit()
-	return a, b, err
-}
+// endregion
 
 func NewClientWithSession(session *xorm.Session) *Client {
 	return &Client{

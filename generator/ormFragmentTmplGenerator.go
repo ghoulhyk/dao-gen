@@ -1,12 +1,14 @@
 package generator
 
 import (
+	"bytes"
 	"github.com/Masterminds/sprig/v3"
 	"github.com/ghoulhyk/dao-gen/bean"
 	"github.com/ghoulhyk/dao-gen/conf"
 	"github.com/ghoulhyk/dao-gen/conf/confBean"
 	"github.com/ghoulhyk/dao-gen/tmpl"
 	"github.com/samber/lo"
+	"go/format"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -26,11 +28,6 @@ func generateOrmFragmentTmplItem(basicPath string, pkgInfo confBean.PackageInfo,
 	dstPath := pkgInfo.DirRelativePath()
 	mainTmplFilePath := strings.ReplaceAll(filepath.Join(srcDir, "main.tmpl"), "\\", "/")
 	subTmplFilePath := strings.ReplaceAll(filepath.Join(srcDir, "subTmpl"), "\\", "/")
-	file, err := os.OpenFile(filepath.Join(basicPath, dstPath, dstFile), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
 
 	commonData := lo.Assign(commonDataItems)
 	tableData := tableDataItem(tableInfo)
@@ -90,9 +87,23 @@ func generateOrmFragmentTmplItem(basicPath string, pkgInfo confBean.PackageInfo,
 			Parse(string(srcFileContent)),
 	)
 
-	err = tpl.Execute(file, data)
+	source := bytes.Buffer{}
+
+	err = tpl.Execute(&source, data)
 	if err != nil {
 		panic(err)
 	}
 
+	sourceBytes := source.Bytes()
+
+	// 格式化源代码
+	formattedSource, err := format.Source(sourceBytes)
+	if err != nil {
+		panic(err)
+	}
+
+	err = os.WriteFile(filepath.Join(basicPath, dstPath, dstFile), formattedSource, 0666)
+	if err != nil {
+		panic(err)
+	}
 }

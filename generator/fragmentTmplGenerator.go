@@ -1,12 +1,16 @@
 package generator
 
 import (
+	"bytes"
+	"errors"
+	"fmt"
 	"github.com/Masterminds/sprig/v3"
 	"github.com/ghoulhyk/dao-gen/bean"
 	"github.com/ghoulhyk/dao-gen/conf"
 	"github.com/ghoulhyk/dao-gen/conf/confBean"
 	"github.com/ghoulhyk/dao-gen/tmpl"
 	"github.com/samber/lo"
+	"go/format"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -95,9 +99,24 @@ func generateFragmentTmplItem(basicPath string, pkgInfo confBean.PackageInfo, ds
 			Parse(string(srcFileContent)),
 	)
 
-	err = tpl.Execute(file, data)
+	source := bytes.Buffer{}
+
+	err = tpl.Execute(&source, data)
 	if err != nil {
 		panic(err)
 	}
 
+	sourceBytes := source.Bytes()
+
+	// 格式化源代码
+	formattedSource, err := format.Source(sourceBytes)
+	if err != nil {
+		err = errors.Join(errors.New(fmt.Sprintf("tmplDir:[%s] tmplFile:[%s] dstCode:[%s]", pkgInfo.DirTmplFileRelative(), dstFile, string(sourceBytes))), err)
+		panic(err)
+	}
+
+	err = os.WriteFile(filepath.Join(basicPath, dstPath, dstFile), formattedSource, 0666)
+	if err != nil {
+		panic(err)
+	}
 }
