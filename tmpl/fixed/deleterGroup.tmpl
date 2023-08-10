@@ -3,17 +3,17 @@
 package {{.BASIC_PACKAGE_NAME}}
 
 import (
-	{{.BASE_PACKAGE_IMPORT}}
-	{{.DELETER_PACKAGE_IMPORT}}
+	{{.packages.base.ImportStatement}}
+	{{.packages.deleter.ImportStatement}}
 )
 
 type deleterGroup struct {
-	client {{.BASE_PACKAGE_NAME}}.IClient
+	client {{.packages.base.RefName}}.IClient
 }
 
 {{ range .tables }}
 // {{.name}}
-func (receiver deleterGroup) {{.name}}() *{{$.DELETER_PACKAGE_NAME}}.{{.deleterWrapperStructName}} {
-    return (&{{$.DELETER_PACKAGE_NAME}}.{{.deleterWrapperStructName}}{}).Init(receiver.client)
+func (receiver deleterGroup) {{.name}}() *{{$.packages.deleter.RefName}}.{{.deleterWrapperStructName}} {
+    return (&{{$.packages.deleter.RefName}}.{{.deleterWrapperStructName}}{}).Init(receiver.client)
 }
 {{- end }}

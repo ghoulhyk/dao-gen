@@ -3,7 +3,7 @@
 package {{.BASIC_PACKAGE_NAME}}
 
 import (
-	{{.BASE_PACKAGE_IMPORT}}
+	{{.packages.base.ImportStatement}}
 	{{.ORM_SESSION_GETTER_IMPORT}}
 	"xorm.io/xorm"
 	"fmt"
@@ -11,11 +11,11 @@ import (
 
 type Client struct {
 	session            *xorm.Session
-	transactionHandler {{.BASE_PACKAGE_NAME}}.ITransactionHandler
-	baseSelectHandler  {{.BASE_PACKAGE_NAME}}.IBaseSelectHandler
-	insertHandler      {{.BASE_PACKAGE_NAME}}.IInsertHandler
-	deleteHandler      {{.BASE_PACKAGE_NAME}}.IDeleteHandler
-	updateHandler      {{.BASE_PACKAGE_NAME}}.IUpdateHandler
+	transactionHandler {{.packages.base.RefName}}.ITransactionHandler
+	baseSelectHandler  {{.packages.base.RefName}}.IBaseSelectHandler
+	insertHandler      {{.packages.base.RefName}}.IInsertHandler
+	deleteHandler      {{.packages.base.RefName}}.IDeleteHandler
+	updateHandler      {{.packages.base.RefName}}.IUpdateHandler
 	inserterGroup      *inserterGroup
 	bulkInserterGroup  *bulkInserterGroup
 	selectorGroup      *selectorGroup
@@ -24,51 +24,51 @@ type Client struct {
 	updaterGroup       *updaterGroup
 }
 
-// region {{.BASE_PACKAGE_NAME}}.ITransactionHandler
+// region {{.packages.base.RefName}}.ITransactionHandler
 
-func (c *Client) Insert(model {{.BASE_PACKAGE_NAME}}.IInserter) (insertCnt int64, pk interface{}, err error) {
+func (c *Client) Insert(model {{.packages.base.RefName}}.IInserter) (insertCnt int64, pk interface{}, err error) {
 	return c.getInsertHandler().Insert(model)
 }
 
-func (c *Client) BulkInsert(model {{.BASE_PACKAGE_NAME}}.IBulkInserter) (insertCnt int64, pkList []interface{}, err error) {
+func (c *Client) BulkInsert(model {{.packages.base.RefName}}.IBulkInserter) (insertCnt int64, pkList []interface{}, err error) {
 	return c.getInsertHandler().BulkInsert(model)
 }
 
 // endregion
 
-// region {{.BASE_PACKAGE_NAME}}.IBaseSelectHandler
+// region {{.packages.base.RefName}}.IBaseSelectHandler
 
-func (c *Client) Select(selector {{.BASE_PACKAGE_NAME}}.IBaseSelectorParams) (list interface{}, total uint64, err error) {
+func (c *Client) Select(selector {{.packages.base.RefName}}.IBaseSelectorParams) (list interface{}, total uint64, err error) {
 	return c.getBaseSelectHandler().Select(selector)
 }
 
-func (c *Client) Single(selector {{.BASE_PACKAGE_NAME}}.IBaseSelectorParams) (exist bool, model interface{}, err error) {
+func (c *Client) Single(selector {{.packages.base.RefName}}.IBaseSelectorParams) (exist bool, model interface{}, err error) {
 	return c.getBaseSelectHandler().Single(selector)
 }
 
-func (c *Client) Count(selector {{.BASE_PACKAGE_NAME}}.IBaseSelectorParams) (total uint64, err error) {
+func (c *Client) Count(selector {{.packages.base.RefName}}.IBaseSelectorParams) (total uint64, err error) {
 	return c.getBaseSelectHandler().Count(selector)
 }
 
 // endregion
 
-// region {{.BASE_PACKAGE_NAME}}.IDeleteHandler
+// region {{.packages.base.RefName}}.IDeleteHandler
 
-func (c *Client) Delete(deleter {{.BASE_PACKAGE_NAME}}.IDeleterParams) (deleteRows uint64, err error) {
+func (c *Client) Delete(deleter {{.packages.base.RefName}}.IDeleterParams) (deleteRows uint64, err error) {
 	return c.getDeleteHandler().Delete(deleter)
 }
 
 // endregion
 
-// region {{.BASE_PACKAGE_NAME}}.IUpdateHandler
+// region {{.packages.base.RefName}}.IUpdateHandler
 
-func (c *Client) Update(updater {{.BASE_PACKAGE_NAME}}.IUpdaterParams) (updateRows uint64, err error) {
+func (c *Client) Update(updater {{.packages.base.RefName}}.IUpdaterParams) (updateRows uint64, err error) {
 	return c.getUpdateHandler().Update(updater)
 }
 
 // endregion
 
-// region {{.BASE_PACKAGE_NAME}}.ITransactionHandler
+// region {{.packages.base.RefName}}.ITransactionHandler
 
 func (c *Client) StartTransaction() error {
 	return c.getTransactionHandler().StartTransaction()
@@ -161,21 +161,21 @@ func (c *Client) Updater() *updaterGroup {
 
 // region 内部对象生成
 
-func (c *Client) getTransactionHandler() {{.BASE_PACKAGE_NAME}}.ITransactionHandler {
+func (c *Client) getTransactionHandler() {{.packages.base.RefName}}.ITransactionHandler {
 	if c.transactionHandler == nil {
 		c.transactionHandler = &transactionHandler{session: c.session}
 	}
 	return c.transactionHandler
 }
 
-func (c *Client) getInsertHandler() {{.BASE_PACKAGE_NAME}}.IInsertHandler {
+func (c *Client) getInsertHandler() {{.packages.base.RefName}}.IInsertHandler {
 	if c.insertHandler == nil {
 		c.insertHandler = &insertHandler{c: c}
 	}
 	return c.insertHandler
 }
 
-func (c *Client) getBaseSelectHandler() {{.BASE_PACKAGE_NAME}}.IBaseSelectHandler {
+func (c *Client) getBaseSelectHandler() {{.packages.base.RefName}}.IBaseSelectHandler {
 	if c.baseSelectHandler == nil {
 		c.baseSelectHandler = &baseSelectHandler{
 			c:                 c,
@@ -186,14 +186,14 @@ func (c *Client) getBaseSelectHandler() {{.BASE_PACKAGE_NAME}}.IBaseSelectHandle
 	return c.baseSelectHandler
 }
 
-func (c *Client) getDeleteHandler() {{.BASE_PACKAGE_NAME}}.IDeleteHandler {
+func (c *Client) getDeleteHandler() {{.packages.base.RefName}}.IDeleteHandler {
 	if c.deleteHandler == nil {
 		c.deleteHandler = &deleteHandler{c: c}
 	}
 	return c.deleteHandler
 }
 
-func (c *Client) getUpdateHandler() {{.BASE_PACKAGE_NAME}}.IUpdateHandler {
+func (c *Client) getUpdateHandler() {{.packages.base.RefName}}.IUpdateHandler {
 	if c.updateHandler == nil {
 		c.updateHandler = &updateHandler{c: c}
 	}

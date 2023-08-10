@@ -3,49 +3,49 @@
 
 // region bulkInserterParams
 
-type {{.BULK_INSERTER_PARAMS_STRUCT_NAME}} struct {
-	insertData []{{.INSERTER_DATA_MODEL_STRUCT_NAME}}
+type {{.structName.bulkInserterParams}} struct {
+	insertData []{{.structName.inserterDataModel}}
 }
 
-func (receiver *{{.BULK_INSERTER_PARAMS_STRUCT_NAME}}) TableInfo() {{.BASE_PACKAGE_NAME}}.TableInfo {
-	return {{.BASE_PACKAGE_NAME}}.TableInfo{
-		DatabaseInfo: {{ if empty .DATABASE_DEF_FIELD_NAME }}nil{{else}}{{.UTIL_PACKAGE_NAME}}.ToPtr({{.DATABASE_DEF_PACKAGE_NAME}}.{{.DATABASE_DEF_FIELD_NAME}}()){{ end }},
+func (receiver *{{.structName.bulkInserterParams}}) TableInfo() {{.packages.base.RefName}}.TableInfo {
+	return {{.packages.base.RefName}}.TableInfo{
+		DatabaseInfo: {{ if empty .DATABASE_DEF_FIELD_NAME }}nil{{else}}{{.packages.util.RefName}}.ToPtr({{.packages.databaseDef.RefName}}.{{.DATABASE_DEF_FIELD_NAME}}()){{ end }},
 		TableName:    "{{.TABLE_NAME}}",
 	}
 }
 
-func (receiver *{{.BULK_INSERTER_PARAMS_STRUCT_NAME}}) InsertData() []{{.BASE_PACKAGE_NAME}}.IInserterDataModel {
-	result := []{{.BASE_PACKAGE_NAME}}.IInserterDataModel{}
+func (receiver *{{.structName.bulkInserterParams}}) InsertData() []{{.packages.base.RefName}}.IInserterDataModel {
+	result := []{{.packages.base.RefName}}.IInserterDataModel{}
 	for _, data := range receiver.insertData {
 		result = append(result, data)
 	}
 	return result
 }
 
-func (receiver *{{.BULK_INSERTER_PARAMS_STRUCT_NAME}}) HasAutoincrPk() bool {
+func (receiver *{{.structName.bulkInserterParams}}) HasAutoincrPk() bool {
 	return {{.HAS_AUTOINCR_PK}}
 }
 
 // endregion
 
 
-type {{.BULK_INSERTER_WRAPPER_STRUCT_NAME}} struct {
-	clientHolder {{.BASE_PACKAGE_NAME}}.IClientHolder
-	params       *{{.BULK_INSERTER_PARAMS_STRUCT_NAME}}
+type {{.structName.bulkInserterWrapper}} struct {
+	clientHolder {{.packages.base.RefName}}.IClientHolder
+	params       *{{.structName.bulkInserterParams}}
 }
 
 // 内部方法，不应调用
-func (receiver *{{.BULK_INSERTER_WRAPPER_STRUCT_NAME}}) Init(client {{.BASE_PACKAGE_NAME}}.IClient) *{{.BULK_INSERTER_WRAPPER_STRUCT_NAME}} {
-	clientHolder := &{{.BASE_PACKAGE_NAME}}.ClientHolder{}
+func (receiver *{{.structName.bulkInserterWrapper}}) Init(client {{.packages.base.RefName}}.IClient) *{{.structName.bulkInserterWrapper}} {
+	clientHolder := &{{.packages.base.RefName}}.ClientHolder{}
 	clientHolder.Init(client)
-	receiver.params = &{{.BULK_INSERTER_PARAMS_STRUCT_NAME}}{}
+	receiver.params = &{{.structName.bulkInserterParams}}{}
 	receiver.clientHolder = clientHolder
 	return receiver
 }
 
-func (receiver *{{.BULK_INSERTER_WRAPPER_STRUCT_NAME}}) AddData(datas ...{{.MODEL_PACKAGE_NAME}}.{{.MODEL_BEAN_NAME}}) *{{.BULK_INSERTER_WRAPPER_STRUCT_NAME}} {
+func (receiver *{{.structName.bulkInserterWrapper}}) AddData(datas ...{{.packages.model.RefName}}.{{.structName.model}}) *{{.structName.bulkInserterWrapper}} {
 	for _, data := range datas {
-		inserterModel := {{.INSERTER_DATA_MODEL_STRUCT_NAME}}{}
+		inserterModel := {{.structName.inserterDataModel}}{}
 		inserterModel._insertColumns = map[string]byte{}
 
 		{{ range .column -}}
@@ -57,22 +57,22 @@ func (receiver *{{.BULK_INSERTER_WRAPPER_STRUCT_NAME}}) AddData(datas ...{{.MODE
 	return receiver
 }
 
-func (receiver *{{.BULK_INSERTER_WRAPPER_STRUCT_NAME}}) AddDataFunc(fun func(data *{{.MODEL_PACKAGE_NAME}}.{{.MODEL_BEAN_NAME}})) *{{.BULK_INSERTER_WRAPPER_STRUCT_NAME}} {
-	data := {{.MODEL_PACKAGE_NAME}}.{{.MODEL_BEAN_NAME}}{}
+func (receiver *{{.structName.bulkInserterWrapper}}) AddDataFunc(fun func(data *{{.packages.model.RefName}}.{{.structName.model}})) *{{.structName.bulkInserterWrapper}} {
+	data := {{.packages.model.RefName}}.{{.structName.model}}{}
 	fun(&data)
 	receiver.AddData(data)
 	return receiver
 }
 
-func (receiver *{{.BULK_INSERTER_WRAPPER_STRUCT_NAME}}) Insert() ([]*{{.MODEL_PACKAGE_NAME}}.{{.MODEL_BEAN_NAME}}, error) {
+func (receiver *{{.structName.bulkInserterWrapper}}) Insert() ([]*{{.packages.model.RefName}}.{{.structName.model}}, error) {
 	_, {{ if .HAS_AUTOINCR_PK }}pkList{{ else }}_{{ end }}, err := receiver.clientHolder.GetClient().BulkInsert(receiver.params)
 	if err != nil {
 		return nil, err
 	}
 
-	result := make([]*{{.MODEL_PACKAGE_NAME}}.{{.MODEL_BEAN_NAME}}, len(receiver.params.insertData))
+	result := make([]*{{.packages.model.RefName}}.{{.structName.model}}, len(receiver.params.insertData))
 	for i, data := range receiver.params.insertData {
-		result[i] = data.RealInsertData().(*{{.MODEL_PACKAGE_NAME}}.{{.MODEL_BEAN_NAME}})
+		result[i] = data.RealInsertData().(*{{.packages.model.RefName}}.{{.structName.model}})
 		{{- if .HAS_AUTOINCR_PK }}
 		result[i].Set{{.PK_FIELD_NAME_TITLED}}({{.PK_FIELD_TYPE}}(pkList[i].(int64)))
 		{{- end }}
@@ -82,20 +82,20 @@ func (receiver *{{.BULK_INSERTER_WRAPPER_STRUCT_NAME}}) Insert() ([]*{{.MODEL_PA
 }
 
 // 发生错误直接panic
-func (receiver *{{.BULK_INSERTER_WRAPPER_STRUCT_NAME}}) MustInsert() []*{{.MODEL_PACKAGE_NAME}}.{{.MODEL_BEAN_NAME}} {
+func (receiver *{{.structName.bulkInserterWrapper}}) MustInsert() []*{{.packages.model.RefName}}.{{.structName.model}} {
 	insertResults, err := receiver.Insert()
 	if err != nil {
 		if receiver.clientHolder.GetClient().IsInTransaction() {
 			receiver.clientHolder.GetClient().Rollback()
 		}
-		panic({{.ERRORS_PACKAGE_NAME}}.InsertErr("{{.TABLE_NAME}}", err))
+		panic({{.packages.errors.RefName}}.InsertErr("{{.TABLE_NAME}}", err))
 	}
 
 	return insertResults
 }
 
 // Deprecated: 使用 MustInsert
-func (receiver *{{.BULK_INSERTER_WRAPPER_STRUCT_NAME}}) InsertOrPanic() []*{{.MODEL_PACKAGE_NAME}}.{{.MODEL_BEAN_NAME}} {
+func (receiver *{{.structName.bulkInserterWrapper}}) InsertOrPanic() []*{{.packages.model.RefName}}.{{.structName.model}} {
 	return receiver.MustInsert()
 }
 

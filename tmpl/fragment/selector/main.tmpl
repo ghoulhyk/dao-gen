@@ -1,72 +1,72 @@
 {{.AUTO_GENERATED_ANNOTATION}}
 
-package {{.SELECTOR_PACKAGE_NAME}}
+package {{.packages.selector.RefName}}
 
 import (
-	{{.ERRORS_PACKAGE_IMPORT}}
-	{{.BASE_PACKAGE_IMPORT}}
-	{{.BASE_COND_PACKAGE_IMPORT}}
-	{{.BASE_MODEL_PACKAGE_IMPORT}}
-	{{.FIELDS_PACKAGE_IMPORT}}
-	{{.MODEL_PACKAGE_IMPORT}}
-	{{.WHERE_COND_PACKAGE_IMPORT}}
-	{{.ORDER_COND_PACKAGE_IMPORT}}
+	{{.packages.errors.ImportStatement}}
+	{{.packages.base.ImportStatement}}
+	{{.packages.baseCond.ImportStatement}}
+	{{.packages.baseModel.ImportStatement}}
+	{{.packages.fields.ImportStatement}}
+	{{.packages.model.ImportStatement}}
+	{{.packages.whereCond.ImportStatement}}
+	{{.packages.orderCond.ImportStatement}}
 	{{ if (empty .DATABASE_DEF_FIELD_NAME | not) }}
-	    {{.UTIL_PACKAGE_IMPORT}}
-        {{.DATABASE_DEF_PACKAGE_IMPORT}}
+	    {{.packages.util.ImportStatement}}
+        {{.packages.databaseDef.ImportStatement}}
 	{{ end }}
 )
 
 // region selectorParams
 
-type {{.SELECTOR_PARAMS_STRUCT_NAME}} struct {
-	whereCondList []{{.BASE_PACKAGE_NAME}}.IWhereCond
-	page          {{.BASE_PACKAGE_NAME}}.IPage
-	orderList     []{{.BASE_PACKAGE_NAME}}.IOrder
-	fieldList     []{{.BASE_PACKAGE_NAME}}.IFieldList
+type {{.structName.selectorParams}} struct {
+	whereCondList []{{.packages.base.RefName}}.IWhereCond
+	page          {{.packages.base.RefName}}.IPage
+	orderList     []{{.packages.base.RefName}}.IOrder
+	fieldList     []{{.packages.base.RefName}}.IFieldList
 }
 
-func (receiver *{{.SELECTOR_PARAMS_STRUCT_NAME}}) TableInfo() {{.BASE_PACKAGE_NAME}}.TableInfo {
-	return {{.BASE_PACKAGE_NAME}}.TableInfo{
-		DatabaseInfo: {{ if empty .DATABASE_DEF_FIELD_NAME }}nil{{else}}{{.UTIL_PACKAGE_NAME}}.ToPtr({{.DATABASE_DEF_PACKAGE_NAME}}.{{.DATABASE_DEF_FIELD_NAME}}()){{ end }},
+func (receiver *{{.structName.selectorParams}}) TableInfo() {{.packages.base.RefName}}.TableInfo {
+	return {{.packages.base.RefName}}.TableInfo{
+		DatabaseInfo: {{ if empty .DATABASE_DEF_FIELD_NAME }}nil{{else}}{{.packages.util.RefName}}.ToPtr({{.packages.databaseDef.RefName}}.{{.DATABASE_DEF_FIELD_NAME}}()){{ end }},
 		TableName:    "{{.TABLE_NAME}}",
 	}
 }
 
-func (receiver *{{.SELECTOR_PARAMS_STRUCT_NAME}}) ProvideResultData() interface{} {
-	return &{{.MODEL_PACKAGE_NAME}}.{{.STRUCT_NAME}}{}
+func (receiver *{{.structName.selectorParams}}) ProvideResultData() interface{} {
+	return &{{.packages.model.RefName}}.{{.structName.model}}{}
 }
 
-func (receiver *{{.SELECTOR_PARAMS_STRUCT_NAME}}) GetWhereCondList() *[]{{.BASE_PACKAGE_NAME}}.IWhereCond {
+func (receiver *{{.structName.selectorParams}}) GetWhereCondList() *[]{{.packages.base.RefName}}.IWhereCond {
 	return &receiver.whereCondList
 }
 
-func (receiver *{{.SELECTOR_PARAMS_STRUCT_NAME}}) GetPageCond() {{.BASE_PACKAGE_NAME}}.IPage {
+func (receiver *{{.structName.selectorParams}}) GetPageCond() {{.packages.base.RefName}}.IPage {
 	return receiver.page
 }
 
-func (receiver *{{.SELECTOR_PARAMS_STRUCT_NAME}}) GetOrderCondList() *[]{{.BASE_PACKAGE_NAME}}.IOrder {
+func (receiver *{{.structName.selectorParams}}) GetOrderCondList() *[]{{.packages.base.RefName}}.IOrder {
 	return &receiver.orderList
 }
 
-func (receiver *{{.SELECTOR_PARAMS_STRUCT_NAME}}) GetFieldList() *[]{{.BASE_PACKAGE_NAME}}.IFieldList {
+func (receiver *{{.structName.selectorParams}}) GetFieldList() *[]{{.packages.base.RefName}}.IFieldList {
 	return &receiver.fieldList
 }
 
 // endregion
 
-type {{.SELECTOR_WRAPPER_STRUCT_NAME}} struct {
+type {{.structName.selectorWrapper}} struct {
 	_count
 	_exist
-	clientHolder  {{.BASE_PACKAGE_NAME}}.IClientHolder
-	params        *{{.SELECTOR_PARAMS_STRUCT_NAME}}
+	clientHolder  {{.packages.base.RefName}}.IClientHolder
+	params        *{{.structName.selectorParams}}
 }
 
-func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) Init(client {{.BASE_PACKAGE_NAME}}.IClient) *{{.SELECTOR_WRAPPER_STRUCT_NAME}} {
-	clientHolder := &{{.BASE_PACKAGE_NAME}}.ClientHolder{}
+func (receiver *{{.structName.selectorWrapper}}) Init(client {{.packages.base.RefName}}.IClient) *{{.structName.selectorWrapper}} {
+	clientHolder := &{{.packages.base.RefName}}.ClientHolder{}
 	clientHolder.Init(client)
 	receiver.clientHolder = clientHolder
-	receiver.params = &{{.SELECTOR_PARAMS_STRUCT_NAME}}{}
+	receiver.params = &{{.structName.selectorParams}}{}
 	receiver._count = _count{
 		clientHolder: receiver.clientHolder,
 		params:       receiver.params,
@@ -77,68 +77,68 @@ func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) Init(client {{.BASE_PACKAGE_N
 	return receiver
 }
 
-func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) Where(fun func(cond *{{.WHERE_COND_PACKAGE_NAME}}.{{.STRUCT_NAME}})) *{{.SELECTOR_WRAPPER_STRUCT_NAME}} {
+func (receiver *{{.structName.selectorWrapper}}) Where(fun func(cond *{{.packages.whereCond.RefName}}.{{.structName.whereCond}})) *{{.structName.selectorWrapper}} {
 	return receiver.AndWhere(fun)
 }
 
-func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) AndWhere(fun func(cond *{{.WHERE_COND_PACKAGE_NAME}}.{{.STRUCT_NAME}})) *{{.SELECTOR_WRAPPER_STRUCT_NAME}} {
-	cond := {{.WHERE_COND_PACKAGE_NAME}}.{{.WHERE_COND_STRUCT_CONSTRUCTOR_NAME}}({{.BASE_PACKAGE_NAME}}.Op_AND, {{.UTIL_PACKAGE_NAME}}.ToPtr(receiver.params.TableInfo()))
+func (receiver *{{.structName.selectorWrapper}}) AndWhere(fun func(cond *{{.packages.whereCond.RefName}}.{{.structName.whereCond}})) *{{.structName.selectorWrapper}} {
+	cond := {{.packages.whereCond.RefName}}.{{.constructorName.whereCond}}({{.packages.base.RefName}}.Op_AND, {{.packages.util.RefName}}.ToPtr(receiver.params.TableInfo()))
 	fun(cond)
 	receiver.params.whereCondList = append(receiver.params.whereCondList, cond)
 	return receiver
 }
 
-func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) OrWhere(fun func(cond *{{.WHERE_COND_PACKAGE_NAME}}.{{.STRUCT_NAME}})) *{{.SELECTOR_WRAPPER_STRUCT_NAME}} {
-	cond := {{.WHERE_COND_PACKAGE_NAME}}.{{.WHERE_COND_STRUCT_CONSTRUCTOR_NAME}}({{.BASE_PACKAGE_NAME}}.Op_OR, {{.UTIL_PACKAGE_NAME}}.ToPtr(receiver.params.TableInfo()))
+func (receiver *{{.structName.selectorWrapper}}) OrWhere(fun func(cond *{{.packages.whereCond.RefName}}.{{.structName.whereCond}})) *{{.structName.selectorWrapper}} {
+	cond := {{.packages.whereCond.RefName}}.{{.constructorName.whereCond}}({{.packages.base.RefName}}.Op_OR, {{.packages.util.RefName}}.ToPtr(receiver.params.TableInfo()))
 	fun(cond)
 	receiver.params.whereCondList = append(receiver.params.whereCondList, cond)
 	return receiver
 }
 
-func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) ClearWhereCond() *{{.SELECTOR_WRAPPER_STRUCT_NAME}} {
-	receiver.params.whereCondList = []{{.BASE_PACKAGE_NAME}}.IWhereCond{}
+func (receiver *{{.structName.selectorWrapper}}) ClearWhereCond() *{{.structName.selectorWrapper}} {
+	receiver.params.whereCondList = []{{.packages.base.RefName}}.IWhereCond{}
 	return receiver
 }
 
-func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) WithField(fun func(fields *{{.FIELDS_PACKAGE_NAME}}.{{.STRUCT_NAME}})) *{{.SELECTOR_WRAPPER_STRUCT_NAME}} {
-	cond := {{.FIELDS_PACKAGE_NAME}}.New{{.STRUCT_NAME}}({{.UTIL_PACKAGE_NAME}}.ToPtr(receiver.params.TableInfo()))
+func (receiver *{{.structName.selectorWrapper}}) WithField(fun func(fields *{{.packages.fields.RefName}}.{{.structName.fields}})) *{{.structName.selectorWrapper}} {
+	cond := {{.packages.fields.RefName}}.{{.constructorName.fields}}({{.packages.util.RefName}}.ToPtr(receiver.params.TableInfo()))
 	fun(cond)
 	receiver.params.fieldList = append(receiver.params.fieldList, cond)
 	return receiver
 }
 
-func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) WithoutField(fun func(fields *{{.FIELDS_PACKAGE_NAME}}.{{.STRUCT_NAME}})) *{{.SELECTOR_WRAPPER_STRUCT_NAME}} {
-	cond := {{.FIELDS_PACKAGE_NAME}}.New{{.STRUCT_NAME}}({{.UTIL_PACKAGE_NAME}}.ToPtr(receiver.params.TableInfo()))
+func (receiver *{{.structName.selectorWrapper}}) WithoutField(fun func(fields *{{.packages.fields.RefName}}.{{.structName.fields}})) *{{.structName.selectorWrapper}} {
+	cond := {{.packages.fields.RefName}}.{{.constructorName.fields}}({{.packages.util.RefName}}.ToPtr(receiver.params.TableInfo()))
 	fun(cond)
 	receiver.params.fieldList = append(receiver.params.fieldList, cond)
 	return receiver
 }
 
-func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) Page(page {{.BASE_PACKAGE_NAME}}.IPage) *{{.SELECTOR_WRAPPER_STRUCT_NAME}} {
+func (receiver *{{.structName.selectorWrapper}}) Page(page {{.packages.base.RefName}}.IPage) *{{.structName.selectorWrapper}} {
 	receiver.params.page = page
 	return receiver
 }
 
-func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) OrderBy(fun func(orders *{{.ORDER_COND_PACKAGE_NAME}}.{{.STRUCT_NAME}})) *{{.SELECTOR_WRAPPER_STRUCT_NAME}} {
-	cond := &{{.ORDER_COND_PACKAGE_NAME}}.{{.STRUCT_NAME}}{}
+func (receiver *{{.structName.selectorWrapper}}) OrderBy(fun func(orders *{{.packages.orderCond.RefName}}.{{.structName.orderCond}})) *{{.structName.selectorWrapper}} {
+	cond := &{{.packages.orderCond.RefName}}.{{.structName.orderCond}}{}
 	fun(cond)
 	receiver.params.orderList = append(receiver.params.orderList, cond.GetOrderCondList()...)
 	return receiver
 }
 
-func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) List() ([]{{.MODEL_PACKAGE_NAME}}.{{.STRUCT_NAME}}, error) {
+func (receiver *{{.structName.selectorWrapper}}) List() ([]{{.packages.model.RefName}}.{{.structName.model}}, error) {
 	list, _, err := receiver.clientHolder.GetClient().Select(receiver.params)
 	if err != nil {
 		return nil, err
 	}
-	selectResult := list.([]{{.MODEL_PACKAGE_NAME}}.{{.STRUCT_NAME}})
+	selectResult := list.([]{{.packages.model.RefName}}.{{.structName.model}})
 	if selectResult == nil {
-		selectResult = []{{.MODEL_PACKAGE_NAME}}.{{.STRUCT_NAME}}{}
+		selectResult = []{{.packages.model.RefName}}.{{.structName.model}}{}
 	}
 	return selectResult, nil
 }
 
-func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) Single() (exist bool, model *{{.MODEL_PACKAGE_NAME}}.{{.STRUCT_NAME}}, err error) {
+func (receiver *{{.structName.selectorWrapper}}) Single() (exist bool, model *{{.packages.model.RefName}}.{{.structName.model}}, err error) {
 	exist, single, err := receiver.clientHolder.GetClient().Single(receiver.params)
 	if err != nil {
 		return
@@ -146,80 +146,80 @@ func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) Single() (exist bool, model *
 	if !exist {
 		return
 	}
-	model = single.(*{{.MODEL_PACKAGE_NAME}}.{{.STRUCT_NAME}})
+	model = single.(*{{.packages.model.RefName}}.{{.structName.model}})
 	return
 }
 
-func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) Pagination() (*{{.BASE_MODEL_PACKAGE_NAME}}.Pagination[{{.MODEL_PACKAGE_NAME}}.{{.STRUCT_NAME}}], error) {
+func (receiver *{{.structName.selectorWrapper}}) Pagination() (*{{.packages.baseModel.RefName}}.Pagination[{{.packages.model.RefName}}.{{.structName.model}}], error) {
 	list, total, err := receiver.clientHolder.GetClient().Select(receiver.params)
 	if err != nil {
 		return nil, err
 	}
-	selectResult := list.([]{{.MODEL_PACKAGE_NAME}}.{{.STRUCT_NAME}})
+	selectResult := list.([]{{.packages.model.RefName}}.{{.structName.model}})
 	if selectResult == nil {
-		selectResult = []{{.MODEL_PACKAGE_NAME}}.{{.STRUCT_NAME}}{}
+		selectResult = []{{.packages.model.RefName}}.{{.structName.model}}{}
 	}
-	return {{.BASE_MODEL_PACKAGE_NAME}}.NewPagination(selectResult, total, receiver.params.page), nil
+	return {{.packages.baseModel.RefName}}.NewPagination(selectResult, total, receiver.params.page), nil
 }
 
 // 发生错误直接panic
 // 长度为0 不会 panic
-func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) MustList() []{{.MODEL_PACKAGE_NAME}}.{{.STRUCT_NAME}} {
+func (receiver *{{.structName.selectorWrapper}}) MustList() []{{.packages.model.RefName}}.{{.structName.model}} {
 	result, err := receiver.List()
 	if err != nil {
 		if receiver.clientHolder.GetClient().IsInTransaction() {
 			receiver.clientHolder.GetClient().Rollback()
 		}
-		panic({{.ERRORS_PACKAGE_NAME}}.SelectErr("{{.TABLE_NAME}}", err))
+		panic({{.packages.errors.RefName}}.SelectErr("{{.TABLE_NAME}}", err))
 	}
 	return result
 }
 
 // 发生错误直接panic
 // 未找到 不会 panic
-func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) MustSingle() *{{.MODEL_PACKAGE_NAME}}.{{.STRUCT_NAME}} {
+func (receiver *{{.structName.selectorWrapper}}) MustSingle() *{{.packages.model.RefName}}.{{.structName.model}} {
 	_, result, err := receiver.Single()
 	if err != nil {
 		if receiver.clientHolder.GetClient().IsInTransaction() {
 			receiver.clientHolder.GetClient().Rollback()
 		}
-		panic({{.ERRORS_PACKAGE_NAME}}.SelectErr("{{.TABLE_NAME}}", err))
+		panic({{.packages.errors.RefName}}.SelectErr("{{.TABLE_NAME}}", err))
 	}
 	return result
 }
 
 // 发生错误直接panic
 // 长度为0 不会 panic
-func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) MustPagination() *{{.BASE_MODEL_PACKAGE_NAME}}.Pagination[{{.MODEL_PACKAGE_NAME}}.{{.STRUCT_NAME}}] {
+func (receiver *{{.structName.selectorWrapper}}) MustPagination() *{{.packages.baseModel.RefName}}.Pagination[{{.packages.model.RefName}}.{{.structName.model}}] {
 	result, err := receiver.Pagination()
 	if err != nil {
 		if receiver.clientHolder.GetClient().IsInTransaction() {
 			receiver.clientHolder.GetClient().Rollback()
 		}
-		panic({{.ERRORS_PACKAGE_NAME}}.SelectErr("{{.TABLE_NAME}}", err))
+		panic({{.packages.errors.RefName}}.SelectErr("{{.TABLE_NAME}}", err))
 	}
 	return result
 }
 
 // Deprecated: 使用 MustList
-func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) ListOrPanic() []{{.MODEL_PACKAGE_NAME}}.{{.STRUCT_NAME}} {
+func (receiver *{{.structName.selectorWrapper}}) ListOrPanic() []{{.packages.model.RefName}}.{{.structName.model}} {
 	return receiver.MustList()
 }
 
 // Deprecated: 使用 MustSingle
-func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) SingleOrPanic() *{{.MODEL_PACKAGE_NAME}}.{{.STRUCT_NAME}} {
+func (receiver *{{.structName.selectorWrapper}}) SingleOrPanic() *{{.packages.model.RefName}}.{{.structName.model}} {
 	return receiver.MustSingle()
 }
 
 // Deprecated: 使用 MustPagination
-func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) PaginationOrPanic() *{{.BASE_MODEL_PACKAGE_NAME}}.Pagination[{{.MODEL_PACKAGE_NAME}}.{{.STRUCT_NAME}}] {
+func (receiver *{{.structName.selectorWrapper}}) PaginationOrPanic() *{{.packages.baseModel.RefName}}.Pagination[{{.packages.model.RefName}}.{{.structName.model}}] {
 	return receiver.MustPagination()
 }
 
-func (receiver *{{.SELECTOR_WRAPPER_STRUCT_NAME}}) Chunk(cb func(list []{{.MODEL_PACKAGE_NAME}}.{{.STRUCT_NAME}}) (stop bool), pageSize int) {
+func (receiver *{{.structName.selectorWrapper}}) Chunk(cb func(list []{{.packages.model.RefName}}.{{.structName.model}}) (stop bool), pageSize int) {
 	page := 0
 	for true {
-		pageCdt := {{.BASE_COND_PACKAGE_NAME}}.PageCdtLimited(page, pageSize)
+		pageCdt := {{.packages.baseCond.RefName}}.PageCdtLimited(page, pageSize)
 		list, _ := receiver.Page(pageCdt).List()
 		if len(list) == 0 {
 			break

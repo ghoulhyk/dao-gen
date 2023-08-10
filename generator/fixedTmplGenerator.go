@@ -2,6 +2,7 @@ package generator
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/Masterminds/sprig/v3"
 	"github.com/ghoulhyk/dao-gen/conf"
 	"github.com/ghoulhyk/dao-gen/conf/confBean"
@@ -17,6 +18,8 @@ import (
 )
 
 func generateFixedTmpl(basicPath string) {
+
+	fmt.Printf("\n==============   fixed   ==============\n")
 
 	err := fs.WalkDir(tmpl.FixedTemplateFs, ".", func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() {
@@ -60,6 +63,7 @@ func generateFixedTmplItem(basicPath string, srcFile string, dstPath string, dst
 
 	err := tpl.Execute(&source, commonData)
 	if err != nil {
+		fmt.Printf("\n%s 模板替换失败!!!\n\n", srcFile)
 		panic(err)
 	}
 
@@ -68,11 +72,15 @@ func generateFixedTmplItem(basicPath string, srcFile string, dstPath string, dst
 	// 格式化源代码
 	formattedSource, err := format.Source(sourceBytes)
 	if err != nil {
+		fmt.Printf("\n%s 格式化失败!!!\n\n", srcFile)
+		fmt.Printf("\n%s\n\n", string(sourceBytes))
 		panic(err)
 	}
 
 	err = os.WriteFile(filepath.Join(basicPath, dstPath, dstFile), formattedSource, 0666)
 	if err != nil {
+		fmt.Printf("\n%s/%s 写入失败!!!\n\n", dstPath, dstFile)
 		panic(err)
 	}
+	fmt.Printf("%s/%s 写入成功\n", dstPath, dstFile)
 }

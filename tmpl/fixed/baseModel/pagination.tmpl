@@ -1,16 +1,16 @@
 {{.AUTO_GENERATED_ANNOTATION}}
 
-package {{.BASE_MODEL_PACKAGE_NAME}}
+package {{.packages.baseModel.RefName}}
 
 import (
-	{{.BASE_PACKAGE_IMPORT}}
+	{{.packages.base.ImportStatement}}
 	"math"
 )
 
 type Pagination[T any] struct {
 	Data    []T        `json:"list"`
 	Total   uint64     `json:"total"`
-	PageCdt {{.BASE_PACKAGE_NAME}}.IPage `json:"-"`
+	PageCdt {{.packages.base.RefName}}.IPage `json:"-"`
 }
 
 func (receiver Pagination[T]) PageCount() uint32 {
@@ -34,7 +34,7 @@ func (receiver *Pagination[T]) DataSize() uint64 {
 	return uint64(len([]T(receiver.Data)))
 }
 
-func NewPagination[T any](data []T, total uint64, pageCdt {{.BASE_PACKAGE_NAME}}.IPage) *Pagination[T] {
+func NewPagination[T any](data []T, total uint64, pageCdt {{.packages.base.RefName}}.IPage) *Pagination[T] {
 	pagination := new(Pagination[T])
 	pagination.Data = data
 	pagination.Total = total

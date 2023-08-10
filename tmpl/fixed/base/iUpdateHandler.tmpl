@@ -1,6 +1,6 @@
 {{.AUTO_GENERATED_ANNOTATION}}
 
-package {{.BASE_PACKAGE_NAME}}
+package {{.packages.base.RefName}}
 
 type IUpdateHandler interface {
 	Update(IUpdaterParams) (updateRows uint64, err error)

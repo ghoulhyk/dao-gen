@@ -1,14 +1,14 @@
 {{.AUTO_GENERATED_ANNOTATION}}
 
-package {{.INSERTER_PACKAGE_NAME}}
+package {{.packages.inserter.RefName}}
 
 import (
-	{{.MODEL_PACKAGE_IMPORT}}
-	{{.BASE_PACKAGE_IMPORT}}
-	{{.ERRORS_PACKAGE_IMPORT}}
+	{{.packages.model.ImportStatement}}
+	{{.packages.base.ImportStatement}}
+	{{.packages.errors.ImportStatement}}
 	{{ if (empty .DATABASE_DEF_FIELD_NAME | not) }}
-	    {{.UTIL_PACKAGE_IMPORT}}
-        {{.DATABASE_DEF_PACKAGE_IMPORT}}
+	    {{.packages.util.ImportStatement}}
+        {{.packages.databaseDef.ImportStatement}}
 	{{ end }}
 
 	{{ range .tableImports }}

@@ -4,8 +4,8 @@
 {{ else }}
 
 {{- end -}}
-func (receiver *{{.WHERE_COND_INNER_STRUCT_NAME}}) {{.FIELD_NAME_TITLED}}() *{{.BASE_COND_PACKAGE_NAME}}.WhereCondItem[{{.FIELD_TYPE}}] {
-	receiver.{{.FIELD_NAME}} = {{.BASE_COND_PACKAGE_NAME}}.NewWhereCondItem[{{.FIELD_TYPE}}]({{.BASE_PACKAGE_NAME}}.Op_AND, "{{.COLUMN_NAME}}")
+func (receiver *{{.structName.whereCondInner}}) {{.FIELD_NAME_TITLED}}() *{{.packages.baseCond.RefName}}.WhereCondItem[{{.FIELD_TYPE}}] {
+	receiver.{{.FIELD_NAME}} = {{.packages.baseCond.RefName}}.NewWhereCondItem[{{.FIELD_TYPE}}]({{.packages.base.RefName}}.Op_AND, "{{.COLUMN_NAME}}")
 	return receiver.{{.FIELD_NAME}}
 }
 {{ end }}

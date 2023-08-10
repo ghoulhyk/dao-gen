@@ -3,17 +3,17 @@
 package {{.BASIC_PACKAGE_NAME}}
 
 import (
-	{{.BASE_PACKAGE_IMPORT}}
-	{{.INSERTER_PACKAGE_IMPORT}}
+	{{.packages.base.ImportStatement}}
+	{{.packages.inserter.ImportStatement}}
 )
 
 type inserterGroup struct {
-	client {{.BASE_PACKAGE_NAME}}.IClient
+	client {{.packages.base.RefName}}.IClient
 }
 
 {{ range .tables }}
 // {{.name}}
-func (receiver inserterGroup) {{.name}}() *{{$.INSERTER_PACKAGE_NAME}}.{{.inserterWrapperStructName}} {
-    return (&{{$.INSERTER_PACKAGE_NAME}}.{{.inserterWrapperStructName}}{}).Init(receiver.client)
+func (receiver inserterGroup) {{.name}}() *{{$.packages.inserter.RefName}}.{{.inserterWrapperStructName}} {
+    return (&{{$.packages.inserter.RefName}}.{{.inserterWrapperStructName}}{}).Init(receiver.client)
 }
 {{- end }}

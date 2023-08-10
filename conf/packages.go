@@ -163,7 +163,7 @@ func GetDatabaseDefPackageInfo(basicPath string) confBean.PackageInfo {
 
 // GetOutsideConfPackageInfo 外部配置
 func GetOutsideConfPackageInfo(basicPath string) confBean.PackageInfo {
-	return confBean.NewPackageInfo("", GetIns().OutsideConf.FullPackageName(), GetIns().OutsideConf.PackageNameForRef(), "", "")
+	return confBean.NewPackageInfo("", GetIns().OutsideConf.FullPackageName(), GetIns().OutsideConf.RefName(), "", "")
 }
 
 // relativePath		相对于 basicPath 的相对路径

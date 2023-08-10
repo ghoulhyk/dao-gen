@@ -1,6 +1,6 @@
 {{.AUTO_GENERATED_ANNOTATION}}
 
-package {{.MODEL_PACKAGE_NAME}}
+package {{.packages.model.RefName}}
 
 import (
 	"encoding/json"
@@ -10,7 +10,7 @@ import (
 	{{ end }}
 )
 
-type {{.MODEL_BEAN_NAME}} struct {
+type {{.structName.model}} struct {
 	{{ range .column -}}
 	    {{.FIELD_NAME_TITLED}} *{{.FIELD_TYPE_WITH_OUT_MODEL_PKG}} {{.FIELD_TAG}}{{ if .COLUMN_COMMENT }} {{.COLUMN_COMMENT}} {{ end }}
 	{{ end }}
@@ -22,7 +22,7 @@ type {{.MODEL_BEAN_NAME}} struct {
 {{- end }}
 // endregion
 
-func (receiver *{{.STRUCT_NAME}}) String() string {
+func (receiver *{{.structName.model}}) String() string {
 	data, _ := json.Marshal(receiver)
 	return string(data)
 }

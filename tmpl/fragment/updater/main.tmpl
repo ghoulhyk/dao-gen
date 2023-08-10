@@ -1,17 +1,17 @@
 {{.AUTO_GENERATED_ANNOTATION}}
 
-package {{.UPDATER_PACKAGE_NAME}}
+package {{.packages.updater.RefName}}
 
 import (
 	"fmt"
-    {{.BASE_PACKAGE_IMPORT}}
-    {{.BASE_COND_PACKAGE_IMPORT}}
-    {{.WHERE_COND_PACKAGE_IMPORT}}
-    {{.ERRORS_PACKAGE_IMPORT}}
+    {{.packages.base.ImportStatement}}
+    {{.packages.baseCond.ImportStatement}}
+    {{.packages.whereCond.ImportStatement}}
+    {{.packages.errors.ImportStatement}}
 
 	{{ if (empty .DATABASE_DEF_FIELD_NAME | not) }}
-	    {{.UTIL_PACKAGE_IMPORT}}
-        {{.DATABASE_DEF_PACKAGE_IMPORT}}
+	    {{.packages.util.ImportStatement}}
+        {{.packages.databaseDef.ImportStatement}}
 	{{ end }}
 
 	{{ range .tableImports }}
@@ -21,32 +21,32 @@ import (
 
 // region updaterParams
 
-type {{.UPDATER_PARAMS_STRUCT_NAME}} struct {
-	whereCondList []{{.BASE_PACKAGE_NAME}}.IWhereCond
+type {{.structName.updaterParams}} struct {
+	whereCondList []{{.packages.base.RefName}}.IWhereCond
 	limit         int
 
 	// region UpdateValItem
 
 	{{ range .column }}
-	    {{- .FIELD_NAME}} *{{.BASE_COND_PACKAGE_NAME}}.UpdateValItem {{- if .COLUMN_COMMENT }} {{.COLUMN_COMMENT}} {{ end }}
+	    {{- .FIELD_NAME}} *{{.packages.baseCond.RefName}}.UpdateValItem {{- if .COLUMN_COMMENT }} {{.COLUMN_COMMENT}} {{ end }}
 	{{ end }}
 
 	// endregion
 }
 
-func (receiver *{{.UPDATER_PARAMS_STRUCT_NAME}}) TableInfo() {{.BASE_PACKAGE_NAME}}.TableInfo {
-	return {{.BASE_PACKAGE_NAME}}.TableInfo{
-		DatabaseInfo: {{ if empty .DATABASE_DEF_FIELD_NAME }}nil{{else}}{{.UTIL_PACKAGE_NAME}}.ToPtr({{.DATABASE_DEF_PACKAGE_NAME}}.{{.DATABASE_DEF_FIELD_NAME}}()){{ end }},
+func (receiver *{{.structName.updaterParams}}) TableInfo() {{.packages.base.RefName}}.TableInfo {
+	return {{.packages.base.RefName}}.TableInfo{
+		DatabaseInfo: {{ if empty .DATABASE_DEF_FIELD_NAME }}nil{{else}}{{.packages.util.RefName}}.ToPtr({{.packages.databaseDef.RefName}}.{{.DATABASE_DEF_FIELD_NAME}}()){{ end }},
 		TableName:    "{{.TABLE_NAME}}",
 	}
 }
 
-func (receiver *{{.UPDATER_PARAMS_STRUCT_NAME}}) GetWhereCondList() *[]{{.BASE_PACKAGE_NAME}}.IWhereCond {
+func (receiver *{{.structName.updaterParams}}) GetWhereCondList() *[]{{.packages.base.RefName}}.IWhereCond {
 	return &receiver.whereCondList
 }
 
-func (receiver *{{.UPDATER_PARAMS_STRUCT_NAME}}) GetUpdateValItemList() *[]{{.BASE_PACKAGE_NAME}}.IUpdateValItem {
-	var result []{{.BASE_PACKAGE_NAME}}.IUpdateValItem
+func (receiver *{{.structName.updaterParams}}) GetUpdateValItemList() *[]{{.packages.base.RefName}}.IUpdateValItem {
+	var result []{{.packages.base.RefName}}.IUpdateValItem
 
     {{ range .column }}
         {{- template "appendValToListTmpl" . -}}
@@ -55,69 +55,69 @@ func (receiver *{{.UPDATER_PARAMS_STRUCT_NAME}}) GetUpdateValItemList() *[]{{.BA
 	return &result
 }
 
-func (receiver *{{.UPDATER_PARAMS_STRUCT_NAME}}) GetLimit() int {
+func (receiver *{{.structName.updaterParams}}) GetLimit() int {
 	return receiver.limit
 }
 
 // endregion
 
-type {{.UPDATER_WRAPPER_STRUCT_NAME}} struct {
-	clientHolder {{.BASE_PACKAGE_NAME}}.IClientHolder
-	params       *{{.UPDATER_PARAMS_STRUCT_NAME}}
+type {{.structName.updaterWrapper}} struct {
+	clientHolder {{.packages.base.RefName}}.IClientHolder
+	params       *{{.structName.updaterParams}}
 }
 
-func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) Init(client {{.BASE_PACKAGE_NAME}}.IClient) *{{.UPDATER_WRAPPER_STRUCT_NAME}} {
-	clientHolder := &{{.BASE_PACKAGE_NAME}}.ClientHolder{}
+func (receiver *{{.structName.updaterWrapper}}) Init(client {{.packages.base.RefName}}.IClient) *{{.structName.updaterWrapper}} {
+	clientHolder := &{{.packages.base.RefName}}.ClientHolder{}
 	clientHolder.Init(client)
 	receiver.clientHolder = clientHolder
-	receiver.params = &{{.UPDATER_PARAMS_STRUCT_NAME}}{}
+	receiver.params = &{{.structName.updaterParams}}{}
 	receiver.params.limit = -1
 	return receiver
 }
 
-func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) Where(fun func(cond *{{.WHERE_COND_PACKAGE_NAME}}.{{.STRUCT_NAME}})) *{{.UPDATER_WRAPPER_STRUCT_NAME}} {
+func (receiver *{{.structName.updaterWrapper}}) Where(fun func(cond *{{.packages.whereCond.RefName}}.{{.structName.whereCond}})) *{{.structName.updaterWrapper}} {
 	return receiver.AndWhere(fun)
 }
 
-func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) AndWhere(fun func(cond *{{.WHERE_COND_PACKAGE_NAME}}.{{.STRUCT_NAME}})) *{{.UPDATER_WRAPPER_STRUCT_NAME}} {
-	cond := {{.WHERE_COND_PACKAGE_NAME}}.{{.WHERE_COND_STRUCT_CONSTRUCTOR_NAME}}({{.BASE_PACKAGE_NAME}}.Op_AND, {{.UTIL_PACKAGE_NAME}}.ToPtr(receiver.params.TableInfo()))
+func (receiver *{{.structName.updaterWrapper}}) AndWhere(fun func(cond *{{.packages.whereCond.RefName}}.{{.structName.whereCond}})) *{{.structName.updaterWrapper}} {
+	cond := {{.packages.whereCond.RefName}}.{{.constructorName.whereCond}}({{.packages.base.RefName}}.Op_AND, {{.packages.util.RefName}}.ToPtr(receiver.params.TableInfo()))
 	fun(cond)
 	receiver.params.whereCondList = append(receiver.params.whereCondList, cond)
 	return receiver
 }
 
-func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) OrWhere(fun func(cond *{{.WHERE_COND_PACKAGE_NAME}}.{{.STRUCT_NAME}})) *{{.UPDATER_WRAPPER_STRUCT_NAME}} {
-	cond := {{.WHERE_COND_PACKAGE_NAME}}.{{.WHERE_COND_STRUCT_CONSTRUCTOR_NAME}}({{.BASE_PACKAGE_NAME}}.Op_OR, {{.UTIL_PACKAGE_NAME}}.ToPtr(receiver.params.TableInfo()))
+func (receiver *{{.structName.updaterWrapper}}) OrWhere(fun func(cond *{{.packages.whereCond.RefName}}.{{.structName.whereCond}})) *{{.structName.updaterWrapper}} {
+	cond := {{.packages.whereCond.RefName}}.{{.constructorName.whereCond}}({{.packages.base.RefName}}.Op_OR, {{.packages.util.RefName}}.ToPtr(receiver.params.TableInfo()))
 	fun(cond)
 	receiver.params.whereCondList = append(receiver.params.whereCondList, cond)
 	return receiver
 }
 
-func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) Limit(limit uint) *{{.UPDATER_WRAPPER_STRUCT_NAME}} {
+func (receiver *{{.structName.updaterWrapper}}) Limit(limit uint) *{{.structName.updaterWrapper}} {
     receiver.params.limit = int(limit)
 	return receiver
 }
 
-func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) Update() (updateRows uint64, err error) {
+func (receiver *{{.structName.updaterWrapper}}) Update() (updateRows uint64, err error) {
 	return receiver.clientHolder.GetClient().Update(receiver.params)
 }
 
 // 发生错误直接panic
 // 更新数量为0 不会 panic
-func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) MustUpdate() (updateRows uint64) {
+func (receiver *{{.structName.updaterWrapper}}) MustUpdate() (updateRows uint64) {
 	updateRows, err := receiver.Update()
 	if err != nil {
 		if receiver.clientHolder.GetClient().IsInTransaction() {
 			receiver.clientHolder.GetClient().Rollback()
 		}
-		panic({{.ERRORS_PACKAGE_NAME}}.UpdateErr("{{.TABLE_NAME}}", err))
+		panic({{.packages.errors.RefName}}.UpdateErr("{{.TABLE_NAME}}", err))
 	}
 
 	return
 }
 
 // Deprecated: 使用 MustUpdate
-func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) UpdateOrPanic() (updateRows uint64) {
+func (receiver *{{.structName.updaterWrapper}}) UpdateOrPanic() (updateRows uint64) {
 	return receiver.MustUpdate()
 }
 

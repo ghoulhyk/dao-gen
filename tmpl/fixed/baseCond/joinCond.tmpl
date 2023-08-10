@@ -1,16 +1,16 @@
 {{.AUTO_GENERATED_ANNOTATION}}
 
-package {{.BASE_COND_PACKAGE_NAME}}
+package {{.packages.baseCond.RefName}}
 
-import {{.BASE_PACKAGE_IMPORT}}
+import {{.packages.base.ImportStatement}}
 
 type JoinCond struct {
 	joinIndex uint8
-	op        {{.BASE_PACKAGE_NAME}}.JoinOp
+	op        {{.packages.base.RefName}}.JoinOp
 	cond      string
 }
 
-func (receiver JoinCond) GetOp() {{.BASE_PACKAGE_NAME}}.JoinOp {
+func (receiver JoinCond) GetOp() {{.packages.base.RefName}}.JoinOp {
 	return receiver.op
 }
 
@@ -22,26 +22,26 @@ func (receiver JoinCond) GetJoinIndex() uint8 {
 	return receiver.joinIndex
 }
 
-func LeftJoin(joinIndex uint8, cond string) {{.BASE_PACKAGE_NAME}}.IJoinCond {
+func LeftJoin(joinIndex uint8, cond string) {{.packages.base.RefName}}.IJoinCond {
 	return &JoinCond{
         joinIndex: joinIndex,
-		op:        {{.BASE_PACKAGE_NAME}}.JoinOpLeft,
+		op:        {{.packages.base.RefName}}.JoinOpLeft,
 		cond:      cond,
 	}
 }
 
-func RightJoin(joinIndex uint8, cond string) {{.BASE_PACKAGE_NAME}}.IJoinCond {
+func RightJoin(joinIndex uint8, cond string) {{.packages.base.RefName}}.IJoinCond {
 	return &JoinCond{
         joinIndex: joinIndex,
-		op:        {{.BASE_PACKAGE_NAME}}.JoinOpRight,
+		op:        {{.packages.base.RefName}}.JoinOpRight,
 		cond:      cond,
 	}
 }
 
-func InnerJoin(joinIndex uint8, cond string) {{.BASE_PACKAGE_NAME}}.IJoinCond {
+func InnerJoin(joinIndex uint8, cond string) {{.packages.base.RefName}}.IJoinCond {
 	return &JoinCond{
         joinIndex: joinIndex,
-		op:        {{.BASE_PACKAGE_NAME}}.JoinOpInner,
+		op:        {{.packages.base.RefName}}.JoinOpInner,
 		cond:      cond,
 	}
 }

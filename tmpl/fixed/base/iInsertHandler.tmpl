@@ -1,6 +1,6 @@
 {{.AUTO_GENERATED_ANNOTATION}}
 
-package {{.BASE_PACKAGE_NAME}}
+package {{.packages.base.RefName}}
 
 type IInsertHandler interface {
 	Insert(IInserter) (insertCnt int64, pk interface{}, err error)

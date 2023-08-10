@@ -1,21 +1,21 @@
 {{.AUTO_GENERATED_ANNOTATION}}
 
-package {{.BASE_COND_PACKAGE_NAME}}
+package {{.packages.baseCond.RefName}}
 
 import (
 	"fmt"
 	"xorm.io/builder"
-	{{.BASE_PACKAGE_IMPORT}}
+	{{.packages.base.ImportStatement}}
 )
 
-func NewRawWhereCondItem[T any](op {{.BASE_PACKAGE_NAME}}.Op, sql string, args ...any) *RawWhereCondItem {
+func NewRawWhereCondItem[T any](op {{.packages.base.RefName}}.Op, sql string, args ...any) *RawWhereCondItem {
 	return &RawWhereCondItem{
 		sql:  sql,
 		args: args,
 	}
 }
 
-func NewWhereCondItem[T any](op {{.BASE_PACKAGE_NAME}}.Op, column string) *WhereCondItem[T] {
+func NewWhereCondItem[T any](op {{.packages.base.RefName}}.Op, column string) *WhereCondItem[T] {
 	return &WhereCondItem[T]{
 		column: column,
 	}
@@ -24,12 +24,12 @@ func NewWhereCondItem[T any](op {{.BASE_PACKAGE_NAME}}.Op, column string) *Where
 // region RawWhereCondItem
 
 type RawWhereCondItem struct {
-	op   {{.BASE_PACKAGE_NAME}}.Op
+	op   {{.packages.base.RefName}}.Op
 	sql  string
 	args []any
 }
 
-func (receiver *RawWhereCondItem) GetOp() {{.BASE_PACKAGE_NAME}}.Op {
+func (receiver *RawWhereCondItem) GetOp() {{.packages.base.RefName}}.Op {
 	return receiver.op
 }
 
@@ -42,7 +42,7 @@ func (receiver *RawWhereCondItem) GetWhereBuilder() builder.Cond {
 //region WhereCondItem
 
 type WhereCondItem[T any] struct {
-	op     {{.BASE_PACKAGE_NAME}}.Op
+	op     {{.packages.base.RefName}}.Op
 	column string
 
 	exprList []*Expr[T]
@@ -116,7 +116,7 @@ func (receiver *WhereCondItem[T]) NotNull() {
 	receiver.exprList = append(receiver.exprList, expr)
 }
 
-func (receiver *WhereCondItem[T]) GetOp() {{.BASE_PACKAGE_NAME}}.Op {
+func (receiver *WhereCondItem[T]) GetOp() {{.packages.base.RefName}}.Op {
 	return receiver.op
 }
 

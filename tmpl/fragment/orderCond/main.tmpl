@@ -1,13 +1,13 @@
 {{.AUTO_GENERATED_ANNOTATION}}
 
-package {{.ORDER_COND_PACKAGE_NAME}}
+package {{.packages.orderCond.RefName}}
 
 import (
-	{{.BASE_PACKAGE_IMPORT}}
-	{{.BASE_COND_PACKAGE_IMPORT}}
+	{{.packages.base.ImportStatement}}
+	{{.packages.baseCond.ImportStatement}}
 )
 
-type {{.ORDER_COND_STRUCT_NAME}} struct{ conds []base.IOrder }
+type {{.structName.orderCond}} struct{ conds []base.IOrder }
 
 // region basicOrder
 {{ range .column -}}
@@ -16,12 +16,12 @@ type {{.ORDER_COND_STRUCT_NAME}} struct{ conds []base.IOrder }
 // endregion
 
 
-func (receiver *{{.ORDER_COND_STRUCT_NAME}}) GetOrderCondList() []{{.BASE_PACKAGE_NAME}}.IOrder {
+func (receiver *{{.structName.orderCond}}) GetOrderCondList() []{{.packages.base.RefName}}.IOrder {
 	return receiver.conds
 }
 
-func (receiver *{{.ORDER_COND_STRUCT_NAME}}) RAW(sql string) {{.BASE_PACKAGE_NAME}}.IOrder {
-	cond := {{.BASE_COND_PACKAGE_NAME}}.OrderRaw(sql)
+func (receiver *{{.structName.orderCond}}) RAW(sql string) {{.packages.base.RefName}}.IOrder {
+	cond := {{.packages.baseCond.RefName}}.OrderRaw(sql)
 	receiver.conds = append(receiver.conds, cond)
 	return cond
 }

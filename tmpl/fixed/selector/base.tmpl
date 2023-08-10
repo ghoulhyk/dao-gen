@@ -1,15 +1,15 @@
 {{.AUTO_GENERATED_ANNOTATION}}
 
-package {{.SELECTOR_PACKAGE_NAME}}
+package {{.packages.selector.RefName}}
 
 import (
-	{{.BASE_PACKAGE_IMPORT}}
-	{{.ERRORS_PACKAGE_IMPORT}}
+	{{.packages.base.ImportStatement}}
+	{{.packages.errors.ImportStatement}}
 )
 
 type _count struct {
-	clientHolder {{.BASE_PACKAGE_NAME}}.IClientHolder
-	params       {{.BASE_PACKAGE_NAME}}.ISelectorParams
+	clientHolder {{.packages.base.RefName}}.IClientHolder
+	params       {{.packages.base.RefName}}.ISelectorParams
 }
 
 func (receiver *_count) Count() (uint64, error) {
@@ -24,7 +24,7 @@ func (receiver *_count) MustCount() uint64 {
 		if receiver.clientHolder.GetClient().IsInTransaction() {
 			receiver.clientHolder.GetClient().Rollback()
 		}
-		panic({{.ERRORS_PACKAGE_NAME}}.SelectErr(receiver.params.TableInfo().TableName, err))
+		panic({{.packages.errors.RefName}}.SelectErr(receiver.params.TableInfo().TableName, err))
 	}
 	return cnt
 }

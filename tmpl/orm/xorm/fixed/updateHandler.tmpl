@@ -3,14 +3,14 @@
 package {{.BASIC_PACKAGE_NAME}}
 
 import (
-	{{.BASE_PACKAGE_IMPORT}}
+	{{.packages.base.ImportStatement}}
 )
 
 type updateHandler struct {
 	c *Client
 }
 
-func (u updateHandler) Update(updater {{.BASE_PACKAGE_NAME}}.IUpdaterParams) (updateRows uint64, err error) {
+func (u updateHandler) Update(updater {{.packages.base.RefName}}.IUpdaterParams) (updateRows uint64, err error) {
 	updateValItemList := updater.GetUpdateValItemList()
 	whereCondList := updater.GetWhereCondList()
 	limit := updater.GetLimit()
@@ -32,7 +32,7 @@ func (u updateHandler) Update(updater {{.BASE_PACKAGE_NAME}}.IUpdaterParams) (up
 	}
 
 	for _, item := range *whereCondList {
-		if item.GetOp() == {{.BASE_PACKAGE_NAME}}.Op_OR {
+		if item.GetOp() == {{.packages.base.RefName}}.Op_OR {
 			session = session.Or(item.GetWhereBuilder())
 		} else {
 			session = session.And(item.GetWhereBuilder())

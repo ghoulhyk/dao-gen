@@ -3,7 +3,7 @@
 package {{.BASIC_PACKAGE_NAME}}
 
 import (
-	{{.BASE_PACKAGE_IMPORT}}
+	{{.packages.base.ImportStatement}}
 )
 
 type baseSelectHandler struct {
@@ -12,31 +12,31 @@ type baseSelectHandler struct {
 	joinSelectHandler joinSelectHandler
 }
 
-func (s baseSelectHandler) Select(i {{.BASE_PACKAGE_NAME}}.IBaseSelectorParams) (list interface{}, total uint64, err error) {
-	if joinSelectorParams, ok := i.({{.BASE_PACKAGE_NAME}}.IJoinSelectorParams); ok {
+func (s baseSelectHandler) Select(i {{.packages.base.RefName}}.IBaseSelectorParams) (list interface{}, total uint64, err error) {
+	if joinSelectorParams, ok := i.({{.packages.base.RefName}}.IJoinSelectorParams); ok {
 		return s.joinSelectHandler.Select(joinSelectorParams)
 	}
-	if selectorParams, ok := i.({{.BASE_PACKAGE_NAME}}.ISelectorParams); ok {
+	if selectorParams, ok := i.({{.packages.base.RefName}}.ISelectorParams); ok {
 		return s.selectHandler.Select(selectorParams)
 	}
 	panic("IBaseSelectorParams 不能直接传入 baseSelectHandler")
 }
 
-func (s baseSelectHandler) Single(i {{.BASE_PACKAGE_NAME}}.IBaseSelectorParams) (exist bool, model interface{}, err error) {
-	if joinSelectorParams, ok := i.({{.BASE_PACKAGE_NAME}}.IJoinSelectorParams); ok {
+func (s baseSelectHandler) Single(i {{.packages.base.RefName}}.IBaseSelectorParams) (exist bool, model interface{}, err error) {
+	if joinSelectorParams, ok := i.({{.packages.base.RefName}}.IJoinSelectorParams); ok {
 		return s.joinSelectHandler.Single(joinSelectorParams)
 	}
-	if selectorParams, ok := i.({{.BASE_PACKAGE_NAME}}.ISelectorParams); ok {
+	if selectorParams, ok := i.({{.packages.base.RefName}}.ISelectorParams); ok {
 		return s.selectHandler.Single(selectorParams)
 	}
 	panic("IBaseSelectorParams 不能直接传入 baseSelectHandler")
 }
 
-func (s baseSelectHandler) Count(i {{.BASE_PACKAGE_NAME}}.IBaseSelectorParams) (total uint64, err error) {
-	if joinSelectorParams, ok := i.({{.BASE_PACKAGE_NAME}}.IJoinSelectorParams); ok {
+func (s baseSelectHandler) Count(i {{.packages.base.RefName}}.IBaseSelectorParams) (total uint64, err error) {
+	if joinSelectorParams, ok := i.({{.packages.base.RefName}}.IJoinSelectorParams); ok {
 		return s.joinSelectHandler.Count(joinSelectorParams)
 	}
-	if selectorParams, ok := i.({{.BASE_PACKAGE_NAME}}.ISelectorParams); ok {
+	if selectorParams, ok := i.({{.packages.base.RefName}}.ISelectorParams); ok {
 		return s.selectHandler.Count(selectorParams)
 	}
 	panic("IBaseSelectorParams 不能直接传入 baseSelectHandler")

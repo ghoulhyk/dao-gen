@@ -3,14 +3,14 @@
 package {{.BASIC_PACKAGE_NAME}}
 
 import (
-	{{.BASE_PACKAGE_IMPORT}}
+	{{.packages.base.ImportStatement}}
 )
 
 type deleteHandler struct {
 	c *Client
 }
 
-func (d deleteHandler) Delete(i {{.BASE_PACKAGE_NAME}}.IDeleterParams) (deleteRows uint64, err error) {
+func (d deleteHandler) Delete(i {{.packages.base.RefName}}.IDeleterParams) (deleteRows uint64, err error) {
 	whereCondList := i.GetWhereCondList()
 	tableInfo := i.TableInfo()
 	session := d.c.session.Table(tableInfo.FullName())
@@ -19,7 +19,7 @@ func (d deleteHandler) Delete(i {{.BASE_PACKAGE_NAME}}.IDeleterParams) (deleteRo
 	}
 
 	for _, item := range *whereCondList {
-		if item.GetOp() == {{.BASE_PACKAGE_NAME}}.Op_OR {
+		if item.GetOp() == {{.packages.base.RefName}}.Op_OR {
 			session = session.Or(item.GetWhereBuilder())
 		} else {
 			session = session.And(item.GetWhereBuilder())

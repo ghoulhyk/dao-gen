@@ -4,8 +4,8 @@
 {{ else }}
 
 {{- end -}}
-func (receiver *{{.ORDER_COND_STRUCT_NAME}}) {{.FIELD_NAME_TITLED}}() *{{.BASE_COND_PACKAGE_NAME}}.OrderBuilder {
-	cond := {{.BASE_COND_PACKAGE_NAME}}.NewOrderBuilder("{{.COLUMN_NAME}}")
+func (receiver *{{.structName.orderCond}}) {{.FIELD_NAME_TITLED}}() *{{.packages.baseCond.RefName}}.OrderBuilder {
+	cond := {{.packages.baseCond.RefName}}.NewOrderBuilder("{{.COLUMN_NAME}}")
 	receiver.conds = append(receiver.conds, cond)
 	return cond
 }

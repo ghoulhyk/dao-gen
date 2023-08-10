@@ -1,23 +1,23 @@
 {{ define "valSetterTmpl" }}
 // region {{.FIELD_NAME}}
 
-func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) Set{{.FIELD_NAME_TITLED}}(val {{.FIELD_TYPE}}) *{{.UPDATER_WRAPPER_STRUCT_NAME}} {
+func (receiver *{{.structName.updaterWrapper}}) Set{{.FIELD_NAME_TITLED}}(val {{.FIELD_TYPE}}) *{{.structName.updaterWrapper}} {
 	return receiver.Set{{.FIELD_NAME_TITLED}}Ptr(&val)
 }
 
-func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) Set{{.FIELD_NAME_TITLED}}Ptr(ptr *{{.FIELD_TYPE}}) *{{.UPDATER_WRAPPER_STRUCT_NAME}} {
+func (receiver *{{.structName.updaterWrapper}}) Set{{.FIELD_NAME_TITLED}}Ptr(ptr *{{.FIELD_TYPE}}) *{{.structName.updaterWrapper}} {
 	receiver.get{{.FIELD_NAME_TITLED}}().SetPtr(ptr)
 	return receiver
 }
 
-func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) Set{{.FIELD_NAME_TITLED}}Expr(sql string) *{{.UPDATER_WRAPPER_STRUCT_NAME}} {
+func (receiver *{{.structName.updaterWrapper}}) Set{{.FIELD_NAME_TITLED}}Expr(sql string) *{{.structName.updaterWrapper}} {
 	receiver.get{{.FIELD_NAME_TITLED}}().SetRawSql(sql)
 	return receiver
 }
 
 {{ if eq .FIELD_TYPE "string" | not -}}
 // Set{{.FIELD_NAME_TITLED}}Incr 自增,默认为 1
-func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) Set{{.FIELD_NAME_TITLED}}Incr(steps ...interface{}) *{{.UPDATER_WRAPPER_STRUCT_NAME}} {
+func (receiver *{{.structName.updaterWrapper}}) Set{{.FIELD_NAME_TITLED}}Incr(steps ...interface{}) *{{.structName.updaterWrapper}} {
 	var step interface{} = 1
 
 	if len(steps) > 0 {
@@ -33,7 +33,7 @@ func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) Set{{.FIELD_NAME_TITLED}}Incr(
 }
 
 // Set{{.FIELD_NAME_TITLED}}Decr 自减,默认为 1
-func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) Set{{.FIELD_NAME_TITLED}}Decr(steps ...interface{}) *{{.UPDATER_WRAPPER_STRUCT_NAME}} {
+func (receiver *{{.structName.updaterWrapper}}) Set{{.FIELD_NAME_TITLED}}Decr(steps ...interface{}) *{{.structName.updaterWrapper}} {
 	var step interface{} = 1
 
 	if len(steps) > 0 {
@@ -49,9 +49,9 @@ func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) Set{{.FIELD_NAME_TITLED}}Decr(
 }
 {{- end }}
 
-func (receiver *{{.UPDATER_WRAPPER_STRUCT_NAME}}) get{{.FIELD_NAME_TITLED}}() *{{.BASE_COND_PACKAGE_NAME}}.UpdateValItem {
+func (receiver *{{.structName.updaterWrapper}}) get{{.FIELD_NAME_TITLED}}() *{{.packages.baseCond.RefName}}.UpdateValItem {
 	if receiver.params.{{.FIELD_NAME}} == nil {
-		receiver.params.{{.FIELD_NAME}} = {{.BASE_COND_PACKAGE_NAME}}.NewUpdateValItem("{{.COLUMN_NAME}}")
+		receiver.params.{{.FIELD_NAME}} = {{.packages.baseCond.RefName}}.NewUpdateValItem("{{.COLUMN_NAME}}")
 	}
 	return receiver.params.{{.FIELD_NAME}}
 }

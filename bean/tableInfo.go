@@ -206,6 +206,18 @@ func (receiver *TableInfo) OrderCondStructName() string {
 	return receiver.StructName()
 }
 
+// FieldStructName
+// field 类名
+func (receiver *TableInfo) FieldStructName() string {
+	return receiver.StructName()
+}
+
+// FieldStructConstructorName
+// field 构造函数名
+func (receiver *TableInfo) FieldStructConstructorName() string {
+	return fmt.Sprintf("New_%s", receiver.StructName())
+}
+
 // DatabaseDefFieldName
 // 本表的库名在 databaseDef 包中对应的字段名
 func (receiver *TableInfo) DatabaseDefFieldName() string {

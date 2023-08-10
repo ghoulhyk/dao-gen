@@ -1,11 +1,7 @@
 package confBean
 
 import (
-	"encoding/json"
-	"github.com/dave/dst"
 	"github.com/samber/lo"
-	"path/filepath"
-	"strconv"
 	"strings"
 )
 
@@ -41,67 +37,44 @@ func NewPackageInfo(basicPath string, fullPackageName string, aliasPackageName s
 	}
 }
 
+// ImportStatement
+// 引用包的语句
+// 本方法在模板中有使用
 func (receiver PackageInfo) ImportStatement() string {
-	if receiver.ShouldUseAliasPackageName() {
+	if receiver.shouldUseAliasPackageName() {
 		return receiver.aliasPackageName + " \"" + receiver.fullPackageName + "\""
 	} else {
 		return "\"" + receiver.fullPackageName + "\""
 	}
 }
 
-func (receiver PackageInfo) ImportDeclSpec() dst.Spec {
-	decl := &dst.ImportSpec{Path: &dst.BasicLit{Value: strconv.Quote(receiver.fullPackageName)}}
-	if receiver.ShouldUseAliasPackageName() {
-		decl.Name = dst.NewIdent(receiver.aliasPackageName)
-	}
-	return decl
-}
-
-// PackageNameForRef 其他文件中调用方法时得前缀 {{PackageNameForRef}}.FuncName()
-func (receiver PackageInfo) PackageNameForRef(structOrFuncName ...string) string {
+// RefName
+// 其他文件中调用方法时得前缀
+// 本方法在模板中有使用
+func (receiver PackageInfo) RefName() string {
 	name := lo.Ternary(receiver.aliasPackageName == "", receiver.packageName, receiver.aliasPackageName)
-	if len(structOrFuncName) > 0 {
-		return name + "." + structOrFuncName[0]
-	}
 	return name
 }
 
-// StarPackageNameForRef 其他文件中调用方法时得前缀 {{PackageNameForRef}}.FuncName()
-func (receiver PackageInfo) StarPackageNameForRef(structOrFuncName ...string) string {
-	return "*" + receiver.PackageNameForRef(structOrFuncName...)
-}
-
-func (receiver PackageInfo) ShouldUseAliasPackageName() bool {
+// 引用时是否使用别名
+func (receiver PackageInfo) shouldUseAliasPackageName() bool {
 	return receiver.aliasPackageName != "" && receiver.aliasPackageName != receiver.packageName
 }
 
-func (receiver PackageInfo) DirAbsPath() string {
-	return filepath.Join(receiver.basicPath, receiver.relativeDirPath)
-}
-
+// DirRelativePath
+// 生成的代码相对路径
 func (receiver PackageInfo) DirRelativePath() string {
 	return receiver.relativeDirPath
 }
 
+// DirTmplFileRelative
+// 模板文件夹名
 func (receiver PackageInfo) DirTmplFileRelative() string {
 	return receiver.tmplFileRelativeDir
 }
 
 func (receiver PackageInfo) FullPackageName() string {
 	return receiver.fullPackageName
-}
-
-func (receiver *PackageInfo) UnmarshalJSON(data []byte) (err error) {
-	tmp := &struct {
-		FullPackageName  string `json:"fullPackageName"`
-		AliasPackageName string `json:"aliasPackageName"`
-	}{}
-	err = json.Unmarshal(data, tmp)
-	if err != nil {
-		return
-	}
-	*receiver = NewPackageInfo("", tmp.FullPackageName, tmp.AliasPackageName, "", "")
-	return
 }
 
 func (receiver *PackageInfo) UnmarshalTOML(data interface{}) (err error) {

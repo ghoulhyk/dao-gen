@@ -3,38 +3,38 @@
 
 // region inserterParams
 
-type {{.INSERTER_PARAMS_STRUCT_NAME}} struct {
-	insertData {{.INSERTER_DATA_MODEL_STRUCT_NAME}}
+type {{.structName.inserterParams}} struct {
+	insertData {{.structName.inserterDataModel}}
 }
 
-func (receiver *{{.INSERTER_PARAMS_STRUCT_NAME}}) TableInfo() {{.BASE_PACKAGE_NAME}}.TableInfo {
-	return {{.BASE_PACKAGE_NAME}}.TableInfo{
-		DatabaseInfo: {{ if empty .DATABASE_DEF_FIELD_NAME }}nil{{else}}{{.UTIL_PACKAGE_NAME}}.ToPtr({{.DATABASE_DEF_PACKAGE_NAME}}.{{.DATABASE_DEF_FIELD_NAME}}()){{ end }},
+func (receiver *{{.structName.inserterParams}}) TableInfo() {{.packages.base.RefName}}.TableInfo {
+	return {{.packages.base.RefName}}.TableInfo{
+		DatabaseInfo: {{ if empty .DATABASE_DEF_FIELD_NAME }}nil{{else}}{{.packages.util.RefName}}.ToPtr({{.packages.databaseDef.RefName}}.{{.DATABASE_DEF_FIELD_NAME}}()){{ end }},
 		TableName:    "{{.TABLE_NAME}}",
 	}
 }
 
-func (receiver *{{.INSERTER_PARAMS_STRUCT_NAME}}) InsertData() {{.BASE_PACKAGE_NAME}}.IInserterDataModel {
+func (receiver *{{.structName.inserterParams}}) InsertData() {{.packages.base.RefName}}.IInserterDataModel {
 	return &receiver.insertData
 }
 
-func (receiver *{{.INSERTER_PARAMS_STRUCT_NAME}}) HasAutoincrPk() bool {
+func (receiver *{{.structName.inserterParams}}) HasAutoincrPk() bool {
 	return {{.HAS_AUTOINCR_PK}}
 }
 
 // endregion
 
-type {{.INSERTER_WRAPPER_STRUCT_NAME}} struct {
-	clientHolder  {{.BASE_PACKAGE_NAME}}.IClientHolder
-	params        *{{.INSERTER_PARAMS_STRUCT_NAME}}
+type {{.structName.inserterWrapper}} struct {
+	clientHolder  {{.packages.base.RefName}}.IClientHolder
+	params        *{{.structName.inserterParams}}
 }
 
 // 内部方法，不应调用
-func (receiver *{{.INSERTER_WRAPPER_STRUCT_NAME}}) Init(client {{.BASE_PACKAGE_NAME}}.IClient) *{{.INSERTER_WRAPPER_STRUCT_NAME}} {
-	clientHolder := &{{.BASE_PACKAGE_NAME}}.ClientHolder{}
+func (receiver *{{.structName.inserterWrapper}}) Init(client {{.packages.base.RefName}}.IClient) *{{.structName.inserterWrapper}} {
+	clientHolder := &{{.packages.base.RefName}}.ClientHolder{}
 	clientHolder.Init(client)
 	receiver.clientHolder = clientHolder
-	receiver.params = &{{.INSERTER_PARAMS_STRUCT_NAME}}{}
+	receiver.params = &{{.structName.inserterParams}}{}
 	receiver.params.insertData._insertColumns = map[string]byte{}
 	return receiver
 }
@@ -47,7 +47,7 @@ func (receiver *{{.INSERTER_WRAPPER_STRUCT_NAME}}) Init(client {{.BASE_PACKAGE_N
 
 // endregion
 
-func (receiver *{{.INSERTER_WRAPPER_STRUCT_NAME}}) FillNotNilData(data {{.MODEL_PACKAGE_NAME}}.{{.MODEL_BEAN_NAME}}) *{{.INSERTER_WRAPPER_STRUCT_NAME}} {
+func (receiver *{{.structName.inserterWrapper}}) FillNotNilData(data {{.packages.model.RefName}}.{{.structName.model}}) *{{.structName.inserterWrapper}} {
 	{{ range .column -}}
 	if data.{{.FIELD_NAME_TITLED}} != nil {
         receiver.Set{{.FIELD_NAME_TITLED}}(*data.{{.FIELD_NAME_TITLED}})
@@ -56,19 +56,19 @@ func (receiver *{{.INSERTER_WRAPPER_STRUCT_NAME}}) FillNotNilData(data {{.MODEL_
 	return receiver
 }
 
-func (receiver *{{.INSERTER_WRAPPER_STRUCT_NAME}}) FillNotNilDataFunc(fun func(data *{{.MODEL_PACKAGE_NAME}}.{{.MODEL_BEAN_NAME}})) *{{.INSERTER_WRAPPER_STRUCT_NAME}} {
-	data := {{.MODEL_PACKAGE_NAME}}.{{.MODEL_BEAN_NAME}}{}
+func (receiver *{{.structName.inserterWrapper}}) FillNotNilDataFunc(fun func(data *{{.packages.model.RefName}}.{{.structName.model}})) *{{.structName.inserterWrapper}} {
+	data := {{.packages.model.RefName}}.{{.structName.model}}{}
 	fun(&data)
 	receiver.FillNotNilData(data)
 	return receiver
 }
 
-func (receiver *{{.INSERTER_WRAPPER_STRUCT_NAME}}) Insert() (*{{.MODEL_PACKAGE_NAME}}.{{.STRUCT_NAME}}, error) {
+func (receiver *{{.structName.inserterWrapper}}) Insert() (*{{.packages.model.RefName}}.{{.structName.model}}, error) {
 	_, {{ if .HAS_AUTOINCR_PK }}pk{{ else }}_{{ end }}, err := receiver.clientHolder.GetClient().Insert(receiver.params)
 	if err != nil {
 		return nil, err
 	}
-	modelObj := receiver.params.insertData.RealInsertData().(*{{.MODEL_PACKAGE_NAME}}.{{.STRUCT_NAME}})
+	modelObj := receiver.params.insertData.RealInsertData().(*{{.packages.model.RefName}}.{{.structName.model}})
 	{{ if .HAS_AUTOINCR_PK -}}
 	modelObj.Set{{.PK_FIELD_NAME_TITLED}}({{.PK_FIELD_TYPE}}(pk.(int64)))
 	{{- end }}
@@ -76,20 +76,20 @@ func (receiver *{{.INSERTER_WRAPPER_STRUCT_NAME}}) Insert() (*{{.MODEL_PACKAGE_N
 }
 
 // 发生错误直接panic
-func (receiver *{{.INSERTER_WRAPPER_STRUCT_NAME}}) MustInsert() *{{.MODEL_PACKAGE_NAME}}.{{.MODEL_BEAN_NAME}} {
+func (receiver *{{.structName.inserterWrapper}}) MustInsert() *{{.packages.model.RefName}}.{{.structName.model}} {
 	insertResult, err := receiver.Insert()
 	if err != nil {
 		if receiver.clientHolder.GetClient().IsInTransaction() {
 			receiver.clientHolder.GetClient().Rollback()
 		}
-		panic({{.ERRORS_PACKAGE_NAME}}.InsertErr("{{.TABLE_NAME}}", err))
+		panic({{.packages.errors.RefName}}.InsertErr("{{.TABLE_NAME}}", err))
 	}
 
 	return insertResult
 }
 
 // Deprecated: 使用 MustInsert
-func (receiver *{{.INSERTER_WRAPPER_STRUCT_NAME}}) InsertOrPanic() *{{.MODEL_PACKAGE_NAME}}.{{.MODEL_BEAN_NAME}} {
+func (receiver *{{.structName.inserterWrapper}}) InsertOrPanic() *{{.packages.model.RefName}}.{{.structName.model}} {
 	return receiver.MustInsert()
 }
 

@@ -4,7 +4,7 @@ package {{.BASIC_PACKAGE_NAME}}
 
 import (
     "reflect"
-	{{.BASE_PACKAGE_IMPORT}}
+	{{.packages.base.ImportStatement}}
 	"strings"
 )
 
@@ -12,7 +12,7 @@ type selectHandler struct {
 	c *Client
 }
 
-func (s selectHandler) Select(i {{.BASE_PACKAGE_NAME}}.ISelectorParams) (list interface{}, total uint64, err error) {
+func (s selectHandler) Select(i {{.packages.base.RefName}}.ISelectorParams) (list interface{}, total uint64, err error) {
 	result := reflect.New(reflect.SliceOf(reflect.TypeOf(i.ProvideResultData()).Elem())).Interface()
 	pageCond := i.GetPageCond()
 	orderCondList := i.GetOrderCondList()
@@ -34,7 +34,7 @@ func (s selectHandler) Select(i {{.BASE_PACKAGE_NAME}}.ISelectorParams) (list in
 	}
 
 	for _, item := range *whereCondList {
-		if item.GetOp() == {{.BASE_PACKAGE_NAME}}.Op_OR {
+		if item.GetOp() == {{.packages.base.RefName}}.Op_OR {
 			session = session.Or(item.GetWhereBuilder())
 		} else {
 			session = session.And(item.GetWhereBuilder())
@@ -66,7 +66,7 @@ func (s selectHandler) Select(i {{.BASE_PACKAGE_NAME}}.ISelectorParams) (list in
 	return reflect.ValueOf(result).Elem().Interface(), total, nil
 }
 
-func (s selectHandler) Single(i {{.BASE_PACKAGE_NAME}}.ISelectorParams) (exist bool, model interface{}, err error) {
+func (s selectHandler) Single(i {{.packages.base.RefName}}.ISelectorParams) (exist bool, model interface{}, err error) {
 	model = i.ProvideResultData()
 	pageCond := i.GetPageCond()
 	orderCondList := i.GetOrderCondList()
@@ -88,7 +88,7 @@ func (s selectHandler) Single(i {{.BASE_PACKAGE_NAME}}.ISelectorParams) (exist b
 	}
 
 	for _, item := range *whereCondList {
-		if item.GetOp() == {{.BASE_PACKAGE_NAME}}.Op_OR {
+		if item.GetOp() == {{.packages.base.RefName}}.Op_OR {
 			session = session.Or(item.GetWhereBuilder())
 		} else {
 			session = session.And(item.GetWhereBuilder())
@@ -105,7 +105,7 @@ func (s selectHandler) Single(i {{.BASE_PACKAGE_NAME}}.ISelectorParams) (exist b
 	return
 }
 
-func (s selectHandler) Count(i {{.BASE_PACKAGE_NAME}}.ISelectorParams) (total uint64, err error) {
+func (s selectHandler) Count(i {{.packages.base.RefName}}.ISelectorParams) (total uint64, err error) {
 	whereCondList := i.GetWhereCondList()
 	tableInfo := i.TableInfo()
 	session := s.c.session.Table(tableInfo.FullName())
@@ -114,7 +114,7 @@ func (s selectHandler) Count(i {{.BASE_PACKAGE_NAME}}.ISelectorParams) (total ui
 	}
 
 	for _, item := range *whereCondList {
-		if item.GetOp() == {{.BASE_PACKAGE_NAME}}.Op_OR {
+		if item.GetOp() == {{.packages.base.RefName}}.Op_OR {
 			session = session.Or(item.GetWhereBuilder())
 		} else {
 			session = session.And(item.GetWhereBuilder())

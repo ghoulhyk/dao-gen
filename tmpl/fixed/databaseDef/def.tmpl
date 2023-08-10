@@ -1,14 +1,14 @@
 {{.AUTO_GENERATED_ANNOTATION}}
 
-package {{.DATABASE_DEF_PACKAGE_NAME}}
+package {{.packages.databaseDef.RefName}}
 
 import (
     {{ if len .databaseInfos | lt 0 }}
-        {{- .BASE_PACKAGE_IMPORT -}}
+        {{- .packages.base.ImportStatement -}}
     {{ end }}
     {{ range $databaseInfo := .databaseInfos -}}
         {{- if .ShouldUseOutsideConf -}}
-            {{- $.OUTSIDE_PACKAGE_IMPORT -}}
+            {{- $.packages.outsideConf.ImportStatement -}}
             {{break}}
         {{- end }}
     {{ end }}
@@ -16,8 +16,8 @@ import (
 
 {{ range .databaseInfos -}}
     {{ if .ShouldUseOutsideConf -}}
-        func {{ .FieldName }}() {{$.BASE_PACKAGE_NAME}}.DatabaseInfo { return {{$.BASE_PACKAGE_NAME}}.DatabaseInfo({{$.OUTSIDE_PACKAGE_NAME}}.{{.OutsideConfKey}}) }
+        func {{ .FieldName }}() {{$.packages.base.RefName}}.DatabaseInfo { return {{$.packages.base.RefName}}.DatabaseInfo({{$.packages.outsideConf.RefName}}.{{.OutsideConfKey}}) }
     {{- else -}}
-        func {{ .FieldName }}() {{$.BASE_PACKAGE_NAME}}.DatabaseInfo { return {{$.BASE_PACKAGE_NAME}}.DatabaseInfo("{{.ActualName}}") }
+        func {{ .FieldName }}() {{$.packages.base.RefName}}.DatabaseInfo { return {{$.packages.base.RefName}}.DatabaseInfo("{{.ActualName}}") }
     {{- end }}
 {{ end }}

@@ -2,6 +2,7 @@ package generator
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/Masterminds/sprig/v3"
 	"github.com/ghoulhyk/dao-gen/bean"
 	"github.com/ghoulhyk/dao-gen/conf"
@@ -18,6 +19,7 @@ import (
 
 func generateFragmentTmpl(basicPath string, tableInfoList []bean.TableInfo) {
 	for _, info := range tableInfoList {
+		fmt.Printf("\n==============   %s   ==============\n", info.TableName())
 		generateFragmentTmplItem(basicPath, conf.GetDeleterPackageInfo(basicPath), info.ModelBeanName()+".go", info)
 		generateFragmentTmplItem(basicPath, conf.GetFieldsPackageInfo(basicPath), info.ModelBeanName()+".go", info)
 		generateFragmentTmplItem(basicPath, conf.GetInserterPackageInfo(basicPath), info.ModelBeanName()+".go", info)
@@ -101,6 +103,7 @@ func generateFragmentTmplItem(basicPath string, pkgInfo confBean.PackageInfo, ds
 
 	err = tpl.Execute(&source, data)
 	if err != nil {
+		fmt.Printf("\n%s 模板替换失败!!!\n\n", srcDir)
 		panic(err)
 	}
 
@@ -109,11 +112,15 @@ func generateFragmentTmplItem(basicPath string, pkgInfo confBean.PackageInfo, ds
 	// 格式化源代码
 	formattedSource, err := format.Source(sourceBytes)
 	if err != nil {
+		fmt.Printf("\n%s 格式化失败!!!\n\n", srcDir)
+		fmt.Printf("\n%s\n\n", string(sourceBytes))
 		panic(err)
 	}
 
 	err = os.WriteFile(filepath.Join(basicPath, dstPath, dstFile), formattedSource, 0666)
 	if err != nil {
+		fmt.Printf("\n%s/%s 写入失败!!!\n\n", dstPath, dstFile)
 		panic(err)
 	}
+	fmt.Printf("%s/%s 写入成功\n", dstPath, dstFile)
 }

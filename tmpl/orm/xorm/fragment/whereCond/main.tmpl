@@ -1,27 +1,27 @@
 {{.AUTO_GENERATED_ANNOTATION}}
 
-package {{.WHERE_COND_PACKAGE_NAME}}
+package {{.packages.whereCond.RefName}}
 
 import (
 	"xorm.io/builder"
 	"fmt"
-    {{.BASE_PACKAGE_IMPORT}}
-    {{.BASE_COND_PACKAGE_IMPORT}}
+    {{.packages.base.ImportStatement}}
+    {{.packages.baseCond.ImportStatement}}
 
 	{{ range .tableImports }}
 	    {{- . -}}
 	{{ end }}
 )
 
-func {{.WHERE_COND_STRUCT_CONSTRUCTOR_NAME}}(op {{.BASE_PACKAGE_NAME}}.Op, _tableInfo *{{.BASE_PACKAGE_NAME}}.TableInfo) *{{.WHERE_COND_STRUCT_NAME}} {
-	return &{{.WHERE_COND_STRUCT_NAME}}{
+func {{.constructorName.whereCond}}(op {{.packages.base.RefName}}.Op, _tableInfo *{{.packages.base.RefName}}.TableInfo) *{{.structName.whereCond}} {
+	return &{{.structName.whereCond}}{
 		_op:        op,
 		_tableInfo: _tableInfo,
 	}
 }
 
-func {{.WHERE_COND_INNER_STRUCT_CONSTRUCTOR_NAME}}(op {{.BASE_PACKAGE_NAME}}.Op, _tableInfo *{{.BASE_PACKAGE_NAME}}.TableInfo) *{{.WHERE_COND_INNER_STRUCT_NAME}} {
-	return &{{.WHERE_COND_INNER_STRUCT_NAME}}{
+func {{.constructorName.whereCondInner}}(op {{.packages.base.RefName}}.Op, _tableInfo *{{.packages.base.RefName}}.TableInfo) *{{.structName.whereCondInner}} {
+	return &{{.structName.whereCondInner}}{
 		_op:        op,
 		_tableInfo: _tableInfo,
 	}
@@ -29,56 +29,56 @@ func {{.WHERE_COND_INNER_STRUCT_CONSTRUCTOR_NAME}}(op {{.BASE_PACKAGE_NAME}}.Op,
 
 // region wrapper
 
-type {{.WHERE_COND_STRUCT_NAME}} struct {
-	_op        {{.BASE_PACKAGE_NAME}}.Op
-	_tableInfo *{{.BASE_PACKAGE_NAME}}.TableInfo
-	_conds     []{{.BASE_PACKAGE_NAME}}.IWhereCond
+type {{.structName.whereCond}} struct {
+	_op        {{.packages.base.RefName}}.Op
+	_tableInfo *{{.packages.base.RefName}}.TableInfo
+	_conds     []{{.packages.base.RefName}}.IWhereCond
 }
 
-func (receiver *{{.WHERE_COND_STRUCT_NAME}}) And() *{{.WHERE_COND_INNER_STRUCT_NAME}} {
-	cond := {{.WHERE_COND_INNER_STRUCT_CONSTRUCTOR_NAME}}({{.BASE_PACKAGE_NAME}}.Op_AND, receiver._tableInfo)
+func (receiver *{{.structName.whereCond}}) And() *{{.structName.whereCondInner}} {
+	cond := {{.constructorName.whereCondInner}}({{.packages.base.RefName}}.Op_AND, receiver._tableInfo)
 	receiver._conds = append(receiver._conds, cond)
 	return cond
 }
 
-func (receiver *{{.WHERE_COND_STRUCT_NAME}}) Or() *{{.WHERE_COND_INNER_STRUCT_NAME}} {
-	cond := {{.WHERE_COND_INNER_STRUCT_CONSTRUCTOR_NAME}}({{.BASE_PACKAGE_NAME}}.Op_OR, receiver._tableInfo)
+func (receiver *{{.structName.whereCond}}) Or() *{{.structName.whereCondInner}} {
+	cond := {{.constructorName.whereCondInner}}({{.packages.base.RefName}}.Op_OR, receiver._tableInfo)
 	receiver._conds = append(receiver._conds, cond)
 	return cond
 }
 
 // region 原生sql
 
-func (receiver *{{.WHERE_COND_STRUCT_NAME}}) AndRaw(sql string, args ...any) {
-	receiver._conds = append(receiver._conds, {{.BASE_COND_PACKAGE_NAME}}.NewRawWhereCondItem[any]({{.BASE_PACKAGE_NAME}}.Op_AND, sql, args...))
+func (receiver *{{.structName.whereCond}}) AndRaw(sql string, args ...any) {
+	receiver._conds = append(receiver._conds, {{.packages.baseCond.RefName}}.NewRawWhereCondItem[any]({{.packages.base.RefName}}.Op_AND, sql, args...))
 }
 
-func (receiver *{{.WHERE_COND_STRUCT_NAME}}) OrRaw(sql string, args ...any) {
-	receiver._conds = append(receiver._conds, {{.BASE_COND_PACKAGE_NAME}}.NewRawWhereCondItem[any]({{.BASE_PACKAGE_NAME}}.Op_OR, sql, args...))
+func (receiver *{{.structName.whereCond}}) OrRaw(sql string, args ...any) {
+	receiver._conds = append(receiver._conds, {{.packages.baseCond.RefName}}.NewRawWhereCondItem[any]({{.packages.base.RefName}}.Op_OR, sql, args...))
 }
 
 // endregion
 
 // region 嵌套
 
-func (receiver *{{.WHERE_COND_STRUCT_NAME}}) AndNest(fun func(cond *{{.WHERE_COND_STRUCT_NAME}})) {
-	cond := {{.WHERE_COND_STRUCT_CONSTRUCTOR_NAME}}({{.BASE_PACKAGE_NAME}}.Op_AND, receiver._tableInfo)
+func (receiver *{{.structName.whereCond}}) AndNest(fun func(cond *{{.structName.whereCond}})) {
+	cond := {{.constructorName.whereCond}}({{.packages.base.RefName}}.Op_AND, receiver._tableInfo)
 	fun(cond)
 	receiver._conds = append(receiver._conds, cond)
 }
-func (receiver *{{.WHERE_COND_STRUCT_NAME}}) OrNest(fun func(cond *{{.WHERE_COND_STRUCT_NAME}})) {
-	cond := {{.WHERE_COND_STRUCT_CONSTRUCTOR_NAME}}({{.BASE_PACKAGE_NAME}}.Op_OR, receiver._tableInfo)
+func (receiver *{{.structName.whereCond}}) OrNest(fun func(cond *{{.structName.whereCond}})) {
+	cond := {{.constructorName.whereCond}}({{.packages.base.RefName}}.Op_OR, receiver._tableInfo)
 	fun(cond)
 	receiver._conds = append(receiver._conds, cond)
 }
 
 // endregion
 
-func (receiver *{{.WHERE_COND_STRUCT_NAME}}) GetOp() {{.BASE_PACKAGE_NAME}}.Op {
+func (receiver *{{.structName.whereCond}}) GetOp() {{.packages.base.RefName}}.Op {
 	return receiver._op
 }
 
-func (receiver *{{.WHERE_COND_STRUCT_NAME}}) GetWhereBuilder() builder.Cond {
+func (receiver *{{.structName.whereCond}}) GetWhereBuilder() builder.Cond {
 	cond := builder.NewCond()
 	for _, whereCond := range receiver._conds {
 		if whereCond.GetOp() == base.Op_OR {
@@ -92,13 +92,13 @@ func (receiver *{{.WHERE_COND_STRUCT_NAME}}) GetWhereBuilder() builder.Cond {
 
 // endregion
 
-type {{.WHERE_COND_INNER_STRUCT_NAME}} struct {
-	_op             {{.BASE_PACKAGE_NAME}}.Op
-	_tableInfo      *{{.BASE_PACKAGE_NAME}}.TableInfo
-	_raw            *{{.BASE_COND_PACKAGE_NAME}}.RawWhereCondItem
+type {{.structName.whereCondInner}} struct {
+	_op             {{.packages.base.RefName}}.Op
+	_tableInfo      *{{.packages.base.RefName}}.TableInfo
+	_raw            *{{.packages.baseCond.RefName}}.RawWhereCondItem
 
 	{{ range .column }}
-	    {{- .FIELD_NAME}} *{{.BASE_COND_PACKAGE_NAME}}.WhereCondItem[{{.FIELD_TYPE}}] {{- if .COLUMN_COMMENT }} {{.COLUMN_COMMENT}} {{ end }}
+	    {{- .FIELD_NAME}} *{{.packages.baseCond.RefName}}.WhereCondItem[{{.FIELD_TYPE}}] {{- if .COLUMN_COMMENT }} {{.COLUMN_COMMENT}} {{ end }}
 	{{ end }}
 }
 
@@ -110,7 +110,7 @@ type {{.WHERE_COND_INNER_STRUCT_NAME}} struct {
 
 // endregion
 
-func (receiver *{{.WHERE_COND_INNER_STRUCT_NAME}}) tableName() string {
+func (receiver *{{.structName.whereCondInner}}) tableName() string {
 	tableName := ""
 	if receiver._tableInfo != nil && receiver._tableInfo.Alias != "" {
 		tableName = receiver._tableInfo.Alias
@@ -119,12 +119,12 @@ func (receiver *{{.WHERE_COND_INNER_STRUCT_NAME}}) tableName() string {
 	return tableName
 }
 
-func (receiver *{{.WHERE_COND_INNER_STRUCT_NAME}}) GetOp() {{.BASE_PACKAGE_NAME}}.Op {
+func (receiver *{{.structName.whereCondInner}}) GetOp() {{.packages.base.RefName}}.Op {
 	return receiver._op
 }
 
 
-func (receiver *{{.WHERE_COND_INNER_STRUCT_NAME}}) GetWhereBuilder() builder.Cond {
+func (receiver *{{.structName.whereCondInner}}) GetWhereBuilder() builder.Cond {
 	cond := builder.NewCond()
 
 	{{ range .column }}

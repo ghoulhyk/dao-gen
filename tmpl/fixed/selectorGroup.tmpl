@@ -3,17 +3,17 @@
 package {{.BASIC_PACKAGE_NAME}}
 
 import (
-	{{.BASE_PACKAGE_IMPORT}}
-	{{.SELECTOR_PACKAGE_IMPORT}}
+	{{.packages.base.ImportStatement}}
+	{{.packages.selector.ImportStatement}}
 )
 
 type selectorGroup struct {
-	client {{.BASE_PACKAGE_NAME}}.IClient
+	client {{.packages.base.RefName}}.IClient
 }
 
 {{ range .tables }}
 // {{.name}}
-func (receiver selectorGroup) {{.name}}() *{{$.SELECTOR_PACKAGE_NAME}}.{{.selectorWrapperStructName}} {
-    return (&{{$.SELECTOR_PACKAGE_NAME}}.{{.selectorWrapperStructName}}{}).Init(receiver.client)
+func (receiver selectorGroup) {{.name}}() *{{$.packages.selector.RefName}}.{{.selectorWrapperStructName}} {
+    return (&{{$.packages.selector.RefName}}.{{.selectorWrapperStructName}}{}).Init(receiver.client)
 }
 {{- end }}

@@ -1,6 +1,6 @@
 {{.AUTO_GENERATED_ANNOTATION}}
 
-package {{.UTIL_PACKAGE_NAME}}
+package {{.packages.util.RefName}}
 
 func Uniq[T comparable](collection []T) []T {
 	result := make([]T, 0, len(collection))

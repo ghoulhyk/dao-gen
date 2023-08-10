@@ -4,8 +4,8 @@ package {{.BASIC_PACKAGE_NAME}}
 
 import (
 	"errors"
-	{{.BASE_PACKAGE_IMPORT}}
-	{{.UTIL_PACKAGE_IMPORT}}
+	{{.packages.base.ImportStatement}}
+	{{.packages.util.ImportStatement}}
 	"strconv"
 	"sync"
 )
@@ -15,7 +15,7 @@ type insertHandler struct {
 	mu sync.Mutex
 }
 
-func (i *insertHandler) Insert(model {{.BASE_PACKAGE_NAME}}.IInserter) (insertCnt int64, pk interface{}, err error) {
+func (i *insertHandler) Insert(model {{.packages.base.RefName}}.IInserter) (insertCnt int64, pk interface{}, err error) {
 	i.mu.Lock()
 	defer i.mu.Unlock()
 	tableInfo := model.TableInfo()
@@ -47,7 +47,7 @@ func (i *insertHandler) Insert(model {{.BASE_PACKAGE_NAME}}.IInserter) (insertCn
 	return
 }
 
-func (i *insertHandler) BulkInsert(model {{.BASE_PACKAGE_NAME}}.IBulkInserter) (insertCnt int64, pkList []interface{}, err error) {
+func (i *insertHandler) BulkInsert(model {{.packages.base.RefName}}.IBulkInserter) (insertCnt int64, pkList []interface{}, err error) {
 	i.mu.Lock()
 	defer i.mu.Unlock()
 	tableInfo := model.TableInfo()
@@ -63,7 +63,7 @@ func (i *insertHandler) BulkInsert(model {{.BASE_PACKAGE_NAME}}.IBulkInserter) (
 		insertColStrings = append(insertColStrings, datum.GetInsertCols()...)
 		realInsertData = append(realInsertData, datum.RealInsertData())
 	}
-	insertColStrings = {{.UTIL_PACKAGE_NAME}}.Uniq(insertColStrings)
+	insertColStrings = {{.packages.util.RefName}}.Uniq(insertColStrings)
 
 	if !i.c.IsInTransaction() {
 		i.c.StartTransaction()
