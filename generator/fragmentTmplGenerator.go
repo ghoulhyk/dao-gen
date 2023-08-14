@@ -8,6 +8,7 @@ import (
 	"github.com/ghoulhyk/dao-gen/conf"
 	"github.com/ghoulhyk/dao-gen/conf/confBean"
 	"github.com/ghoulhyk/dao-gen/tmpl"
+	"github.com/ghoulhyk/dao-gen/utils/tmplUtils"
 	"github.com/samber/lo"
 	"go/format"
 	"io/fs"
@@ -52,14 +53,16 @@ func generateFragmentTmplItem(basicPath string, pkgInfo confBean.PackageInfo, ds
 	data["tableImports"] = tableInfo.ImportsStr()
 	data["column"] = fieldDataList
 
+	// region 拼接模板 srcFileContent
+
 	srcFileContent, err := fs.ReadFile(tmpl.FragmentTemplateFs, mainTmplFilePath)
 	if err != nil {
 		panic(err)
 	}
 
-	doAppendSubTempl := func() bool {
+	hasSysAppendTmpl := func() bool {
 		subTmplFileDir, err := tmpl.FragmentTemplateFs.Open(subTmplFilePath)
-		// err 为空代表，文件夹不存在
+		// err 不为空，代表 文件夹不存在
 		if err != nil {
 			return false
 		}
@@ -72,7 +75,7 @@ func generateFragmentTmplItem(basicPath string, pkgInfo confBean.PackageInfo, ds
 		}
 		return true
 	}()
-	if doAppendSubTempl {
+	if hasSysAppendTmpl {
 		err = fs.WalkDir(tmpl.FragmentTemplateFs, subTmplFilePath, func(path string, d fs.DirEntry, err error) error {
 			if d.IsDir() {
 				return nil
@@ -92,6 +95,45 @@ func generateFragmentTmplItem(basicPath string, pkgInfo confBean.PackageInfo, ds
 			panic(err)
 		}
 	}
+
+	hasUserCustomAppendTmpl := func() bool {
+		if conf.GetIns().Path2basic.AppendTmpl == "" {
+			return false
+		}
+		subTmplFileDir, err := os.Open(filepath.Join(basicPath, conf.GetIns().Path2basic.AppendTmpl, srcDir))
+		// err 不为空，代表 文件夹不存在
+		if err != nil {
+			return false
+		}
+		info, err := subTmplFileDir.Stat()
+		if err != nil {
+			return false
+		}
+		if !info.IsDir() {
+			return false
+		}
+		return true
+	}()
+	if hasUserCustomAppendTmpl {
+		dirEntrys, err := os.ReadDir(filepath.Join(basicPath, conf.GetIns().Path2basic.AppendTmpl, srcDir))
+		if err == nil && len(dirEntrys) > 0 {
+			var appendTemplContentList [][]byte
+			for _, entry := range dirEntrys {
+				if entry.IsDir() {
+					continue
+				}
+				appendTemplContent, err := os.ReadFile(filepath.Join(basicPath, conf.GetIns().Path2basic.AppendTmpl, srcDir, entry.Name()))
+				if err == nil {
+					appendTemplContentList = append(appendTemplContentList, appendTemplContent)
+				}
+			}
+			if len(appendTemplContentList) > 0 {
+				srcFileContent = tmplUtils.Append(srcFileContent, appendTemplContentList...)
+			}
+		}
+	}
+
+	// endregion
 
 	tpl := template.Must(
 		template.New("main").

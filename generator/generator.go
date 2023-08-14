@@ -9,13 +9,14 @@ import (
 )
 
 // Generate
-// 23-07-12	1.0.0
+// 23-07-12	0.0.1
+// 23-07-16	0.0.3
 func Generate(basicPath string, confFilePath string) {
 	startTime := time.Now()
 	fmt.Println("╭＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝╮")
 	fmt.Println("│　　　　　　　　　　　　　　　　　│")
-	fmt.Println("│　　ＤＡＴＥ　２３－０７－１６　　│")
-	fmt.Println("│　　ＶＥＲＳＩＯＮ　０．０．３　　│")
+	fmt.Println("│　　ＤＡＴＥ　２３－０８－１５　　│")
+	fmt.Println("│　　ＶＥＲＳＩＯＮ　０．０．４　　│")
 	fmt.Println("│　　　　　　　　　　　　　　　　　│")
 	fmt.Println("╰＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝╯")
 	fmt.Println("配置文件：", confFilePath)

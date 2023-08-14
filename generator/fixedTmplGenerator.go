@@ -7,11 +7,11 @@ import (
 	"github.com/ghoulhyk/dao-gen/conf"
 	"github.com/ghoulhyk/dao-gen/conf/confBean"
 	"github.com/ghoulhyk/dao-gen/tmpl"
+	"github.com/ghoulhyk/dao-gen/utils/tmplUtils"
 	"github.com/samber/lo"
 	"go/format"
 	"io/fs"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 	"text/template"
@@ -48,20 +48,35 @@ func generateFixedTmpl(basicPath string) {
 }
 
 func generateFixedTmplItem(basicPath string, srcFile string, dstPath string, dstFile string) {
-	srcFileName := path.Base(srcFile)
-	tpl := template.Must(
-		template.New(srcFileName).
-			Funcs(sprig.TxtFuncMap()).
-			ParseFS(tmpl.FixedTemplateFs, srcFile),
-	)
-
 	commonData := lo.Assign(commonDataItems)
 	commonData["databaseInfos"] = conf.GetIns().Database.DatabaseInfos
 	commonData["tables"] = tables
 
+	// region 拼接模板 srcFileContent
+
+	srcFileContent, err := fs.ReadFile(tmpl.FixedTemplateFs, srcFile)
+	if err != nil {
+		panic(err)
+	}
+
+	if conf.GetIns().Path2basic.AppendTmpl != "" {
+		appendTmplContent, err := os.ReadFile(filepath.Join(basicPath, conf.GetIns().Path2basic.AppendTmpl, srcFile))
+		if err == nil {
+			srcFileContent = tmplUtils.Append(srcFileContent, appendTmplContent)
+		}
+	}
+
+	// endregion
+
+	tpl := template.Must(
+		template.New("main").
+			Funcs(sprig.TxtFuncMap()).
+			Parse(string(srcFileContent)),
+	)
+
 	source := bytes.Buffer{}
 
-	err := tpl.Execute(&source, commonData)
+	err = tpl.Execute(&source, commonData)
 	if err != nil {
 		fmt.Printf("\n%s 模板替换失败!!!\n\n", srcFile)
 		panic(err)
